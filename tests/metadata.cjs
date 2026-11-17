@@ -10,8 +10,8 @@ vm.runInContext('renderHome=()=>{};renderMetadata=()=>{};toast=()=>{};',ctx);
 const run=code=>vm.runInContext(code,ctx),plain=value=>JSON.parse(JSON.stringify(value));
 const reviewed=JSON.parse(fs.readFileSync(path.join(__dirname,'../research/songs-reviewed.json'),'utf8'));
 const audit=JSON.parse(fs.readFileSync(path.join(__dirname,'../research/bpm-key-audit.json'),'utf8'));
-assert.equal(reviewed.length,66);
-for(let i=0;i<66;i++){
+assert.equal(reviewed.length,70);
+for(let i=0;i<70;i++){
  assert.equal(reviewed[i].bpm,audit[i].output_bpm);
  assert.equal(reviewed[i].key,audit[i].output_key);
  if(reviewed[i].genre==='抒情')assert.ok(reviewed[i].bpm<=100);

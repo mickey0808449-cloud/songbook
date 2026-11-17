@@ -958,5 +958,57 @@
     "sources": [
       "https://ja.chordwiki.org/wiki/水平線"
     ]
+  },
+  {
+    "title": "Pretender",
+    "artist": "Official髭男dism",
+    "original_bpm": null,
+    "output_bpm": 92,
+    "reference_bpm": "92",
+    "reference_key": "Ab",
+    "output_key": "Ab",
+    "assessment": "原唱和弦譜明示 Ab 大調、BPM 92，補 BPM 92 與 Key Ab。",
+    "sources": [
+      "https://ja.chordwiki.org/wiki/Pretender"
+    ]
+  },
+  {
+    "title": "NIGHT DANCER",
+    "artist": "imase",
+    "original_bpm": null,
+    "output_bpm": 117,
+    "reference_bpm": "117",
+    "reference_key": "Bb / Gm",
+    "output_key": "Bb",
+    "assessment": "原曲 BPM 117、調性 Bb 大調（關係小調 Gm），補 BPM 117 與 Key Bb。",
+    "sources": [
+      "https://ja.chordwiki.org/wiki/NIGHT+DANCER"
+    ]
+  },
+  {
+    "title": "シルエット",
+    "artist": "KANA-BOON",
+    "original_bpm": null,
+    "output_bpm": 92,
+    "reference_bpm": "92 / 183",
+    "reference_key": "D",
+    "output_key": "D",
+    "assessment": "原唱和弦譜明示 D 大調，BPM 採半速拍點 92（倍速 183）。",
+    "sources": [
+      "https://ja.chordwiki.org/wiki/シルエット（KANA-BOON）"
+    ]
+  },
+  {
+    "title": "感電",
+    "artist": "米津玄師",
+    "original_bpm": null,
+    "output_bpm": 103,
+    "reference_bpm": "103",
+    "reference_key": "B / G#m",
+    "output_key": "B",
+    "assessment": "原唱和弦譜明示 B 大調（關係小調 G#m）、BPM 103，補 BPM 103 與 Key B。",
+    "sources": [
+      "https://ja.chordwiki.org/wiki/感電"
+    ]
   }
 ]

@@ -12,7 +12,7 @@
 :root{
   --bg:#f6f4ef; --card:#fff; --ink:#1f1d1a; --muted:#77716a; --line:#e6e1d8; --field:#fff; --tag:#f1eee8; --tagink:#5d574f;
   --accent:#c2553a; --accent-soft:#f6e3dc; --zh:#2f8f4e; --en:#2f6db3; --todo:#3a6ea5; --todo-soft:#e1ebf6; --head:rgba(246,244,239,.95);
-  --radius:14px; --maxw:860px;
+  --radius:14px; --maxw:1000px;
   --font:"Noto Sans TC","Noto Sans JP",system-ui,sans-serif;
   font-family:var(--font);
 }
@@ -23,7 +23,7 @@
 :root[data-font="serif"]{--font:"Noto Serif TC","Noto Serif JP",serif}
 :root[data-font="kai"]{--font:"LXGW WenKai TC","Klee One","Noto Serif JP",serif}
 :root[data-font="system"]{--font:system-ui,-apple-system,"PingFang TC","Hiragino Sans","Microsoft JhengHei",sans-serif}
-:root[data-width="wide"]{--maxw:1200px}
+:root[data-width="wide"]{--maxw:1540px}
 :root[data-width="full"]{--maxw:100%}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);-webkit-text-size-adjust:100%}
@@ -58,12 +58,12 @@ section.panel h2 .count{font-size:13px;font-weight:500;color:var(--muted)}
 .addform{display:grid;grid-template-columns:1fr 110px auto;gap:8px;margin-bottom:12px}
 .addform input,.addform select{padding:9px 10px;border:1px solid var(--line);border-radius:10px;background:var(--field);min-width:0}
 .group-h{font-size:12px;color:var(--muted);margin:12px 0 6px;letter-spacing:.05em}
-.list{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px}
-.song{display:flex;flex-direction:column;align-items:flex-start;gap:3px;text-align:left;border:1px solid var(--line);background:var(--card);border-radius:12px;padding:10px 12px;min-width:0}
+.list{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px}
+.song{display:flex;flex-direction:column;align-items:flex-start;gap:5px;text-align:left;border:1px solid var(--line);background:var(--card);border-radius:12px;padding:12px 14px;min-width:0}
 .song:hover{border-color:var(--muted)}
-.song .t{font-weight:500;font-size:15px;width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.song .m{font-size:12px;color:var(--muted);display:flex;gap:6px;flex-wrap:wrap}
-.tag{font-size:11px;border-radius:6px;padding:1px 6px;background:var(--tag);color:var(--tagink)}
+.song .t{font-weight:600;font-size:17px;width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.song .m{font-size:13px;color:var(--muted);display:flex;gap:6px;flex-wrap:wrap}
+.tag{font-size:12px;border-radius:6px;padding:2px 7px;background:var(--tag);color:var(--tagink)}
 .tag.lyr{background:var(--accent-soft);color:var(--accent)}
 .empty{color:var(--muted);font-size:14px;padding:6px 0}
 footer{font-size:13px;color:var(--muted);display:flex;flex-wrap:wrap;gap:8px;align-items:center}
@@ -295,9 +295,13 @@ const SEED = [
  ["さよならエレジー","菅田将暉","ja","搖滾",78,"base"],
  ["カブトムシ","aiko","ja","抒情",74,"todo"],
  ["しわあわせ","Vaundy","ja","抒情",80,"todo","","しあわせ"],
- ["水平線","back number","ja","抒情",73,"done"]
+ ["水平線","back number","ja","抒情",73,"done"],
+ ["Pretender","Official髭男dism","ja","流行",92,"todo"],
+ ["NIGHT DANCER","imase","ja","流行",117,"todo"],
+ ["シルエット","KANA-BOON","ja","搖滾",92,"base"],
+ ["感電","米津玄師","ja","流行",103,"todo"]
 ];
-const DATA_VER = 9;
+const DATA_VER = 10;
 const LANG = {ja:"日文",zh:"中文",en:"英文",ko:"韓文",other:"其他"};
 const GENRES = ["抒情","流行","搖滾","民謠","R&B","說唱","動漫/影視","其他"];
 const KEY = "songbook.v1";
@@ -1262,6 +1266,58 @@ const RESEARCH = [
   "sources": [
    "https://ja.chordwiki.org/wiki/水平線"
   ]
+ },
+ {
+  "title": "Pretender",
+  "artist": "Official髭男dism",
+  "bpm": 92,
+  "key": "Ab",
+  "genre": "流行",
+  "referenceBpm": "92",
+  "referenceKey": "Ab",
+  "note": "原唱和弦譜明示 Ab 大調、BPM 92，補 BPM 92 與 Key Ab。",
+  "sources": [
+   "https://ja.chordwiki.org/wiki/Pretender"
+  ]
+ },
+ {
+  "title": "NIGHT DANCER",
+  "artist": "imase",
+  "bpm": 117,
+  "key": "Bb",
+  "genre": "流行",
+  "referenceBpm": "117",
+  "referenceKey": "Bb / Gm",
+  "note": "原曲 BPM 117、調性 Bb 大調（關係小調 Gm），補 BPM 117 與 Key Bb。",
+  "sources": [
+   "https://ja.chordwiki.org/wiki/NIGHT+DANCER"
+  ]
+ },
+ {
+  "title": "シルエット",
+  "artist": "KANA-BOON",
+  "bpm": 92,
+  "key": "D",
+  "genre": "搖滾",
+  "referenceBpm": "92 / 183",
+  "referenceKey": "D",
+  "note": "原唱和弦譜明示 D 大調，BPM 採半速拍點 92（倍速 183）。",
+  "sources": [
+   "https://ja.chordwiki.org/wiki/シルエット（KANA-BOON）"
+  ]
+ },
+ {
+  "title": "感電",
+  "artist": "米津玄師",
+  "bpm": 103,
+  "key": "B",
+  "genre": "流行",
+  "referenceBpm": "103",
+  "referenceKey": "B / G#m",
+  "note": "原唱和弦譜明示 B 大調（關係小調 G#m）、BPM 103，補 BPM 103 與 Key B。",
+  "sources": [
+   "https://ja.chordwiki.org/wiki/感電"
+  ]
  }
 ];
 /* RESEARCH_DATA_END */
@@ -1316,7 +1372,7 @@ function metadataPlan(list){
 function renderMetadata(){
   const plan=metadataPlan(songs),fields=plan.reduce((n,p)=>n+Object.keys(p.changes).length,0);
   $("#metadataSummary").textContent=`歌曲資料補充 · 可補 ${plan.length} 首、${fields} 個空欄`;
-  $("#metadataPreview").innerHTML=plan.length?`<ul class="metadata-items">${plan.map(p=>`<li>${esc(p.title)} · ${esc(p.artist)}：${Object.entries(p.changes).map(([k,v])=>`${({bpm:"BPM",key:"Key",genre:"風格"})[k]||k} ${esc(String(v))}`).join("、")}</li>`).join("")}</ul>`:'<p>目前沒有可直接補齊的空欄。資料有分歧的歌曲會保留空白。</p>';
+  $("#metadataPreview").innerHTML=plan.length?`<ul class="metadata-items">${plan.map(p=>`<li>${esc(p.title)} · ${esc(p.artist)}：${Object.entries(p.changes).map(([k,v])=>`${({artist:"歌手",bpm:"BPM",key:"Key",genre:"風格"})[k]||k} ${esc(String(v))}`).join("、")}</li>`).join("")}</ul>`:'<p>目前沒有可直接補齊的空欄。資料有分歧的歌曲會保留空白。</p>';
   $("#applyMetadata").disabled=!plan.length;
   const missingBpm=songs.filter(s=>emptyMetadata(s.bpm)).length-plan.filter(p=>"bpm" in p.changes).length;
   const missingKey=songs.filter(s=>emptyMetadata(s.key)).length-plan.filter(p=>"key" in p.changes).length;
