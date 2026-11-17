@@ -151,6 +151,11 @@ footer{font-size:13px;color:var(--muted);display:flex;flex-wrap:wrap;gap:8px;ali
     <div id="listDone"></div>
   </section>
 
+  <section class="panel" id="secPracticing">
+    <h2><span class="dot" style="background:var(--zh)"></span>練習中 <span class="count" id="cPracticing"></span></h2>
+    <div id="listPracticing"></div>
+  </section>
+
   <section class="panel" id="secBase">
     <h2><span class="dot" style="background:var(--muted)"></span>基礎（不用練） <span class="count" id="cBase"></span></h2>
     <div id="listBase"></div>
@@ -178,7 +183,7 @@ footer{font-size:13px;color:var(--muted);display:flex;flex-wrap:wrap;gap:8px;ali
     <button class="btn small" id="back">← 返回</button>
     <span class="sp"></span>
     <button class="btn small" id="editBtn">編輯</button>
-    <select class="btn small" id="statusSel" aria-label="分區"><option value="done">練過</option><option value="base">基礎（不用練）</option><option value="todo">待練</option></select>
+    <select class="btn small" id="statusSel" aria-label="分區"><option value="done">練過</option><option value="practicing">練習中</option><option value="base">基礎（不用練）</option><option value="todo">待練</option></select>
     <button class="btn small primary" id="pdfOne">匯出 PDF</button>
   </div></div>
   <div class="wrap" id="dbody"></div>
@@ -329,11 +334,13 @@ function listHTML(arr){
 function renderHome(){
   renderSegs();
   const f=filtered();
-  const d=f.filter(s=>s.status==="done"), b=f.filter(s=>s.status==="base"), t=f.filter(s=>s.status!=="done"&&s.status!=="base");
+  const d=f.filter(s=>s.status==="done"), p=f.filter(s=>s.status==="practicing"), b=f.filter(s=>s.status==="base"), t=f.filter(s=>!["done","base","practicing"].includes(s.status));
+  $("#listPracticing").innerHTML=listHTML(p);
+  $("#cPracticing").textContent=p.length+" 首";
   $("#listDone").innerHTML=listHTML(d); $("#listBase").innerHTML=listHTML(b); $("#listTodo").innerHTML=listHTML(t);
   $("#cDone").textContent=d.length+" 首"; $("#cBase").textContent=b.length+" 首"; $("#cTodo").textContent=t.length+" 首";
-  const all=songs.length, done=songs.filter(s=>s.status==="done").length, base=songs.filter(s=>s.status==="base").length;
-  $("#summary").textContent=`共 ${all} 首 · 練過 ${done} · 基礎 ${base} · 待練 ${all-done-base}`;
+  const all=songs.length, done=songs.filter(s=>s.status==="done").length, practicing=songs.filter(s=>s.status==="practicing").length, base=songs.filter(s=>s.status==="base").length;
+  $("#summary").textContent=`共 ${all} 首 · 練過 ${done} · 練習中 ${practicing} · 基礎 ${base} · 待練 ${all-done-practicing-base}`;
 }
 
 /* ---------- Japanese furigana / romaji (kuroshiro + kuromoji, loaded on demand) ---------- */
@@ -434,9 +441,9 @@ function closeSong(){$("#detail").classList.remove("open");$("#detail").setAttri
 
 async function renderDetail(){
   const s=cur; if(!s)return;
-  $("#statusSel").value=s.status==="done"||s.status==="base"?s.status:"todo";
+  $("#statusSel").value=["done","base","practicing"].includes(s.status)?s.status:"todo";
   $("#editBtn").textContent=editing?"完成":"編輯";
-  const info=[LANG[s.lang],s.genre||"未分類",s.bpm?s.bpm+" BPM · "+tempo(s.bpm).replace(/（.*）/,""):"未填 BPM",s.key?"Key "+s.key:"",({done:"已練",base:"基礎"})[s.status]||"待練"].filter(Boolean);
+  const info=[LANG[s.lang],s.genre||"未分類",s.bpm?s.bpm+" BPM · "+tempo(s.bpm).replace(/（.*）/,""):"未填 BPM",s.key?"Key "+s.key:"",({done:"已練",practicing:"練習中",base:"基礎"})[s.status]||"待練"].filter(Boolean);
   let h=`<h1 class="dtitle">${esc(s.title)}</h1><p class="dartist">${esc(s.artist||"未填歌手")}</p>
   <div class="info">${info.map(t=>`<span class="tag">${esc(t)}</span>`).join("")}</div>${s.note?`<div class="note">${esc(s.note)}</div>`:""}${searchLinks(s)}`;
   if(editing){
@@ -540,7 +547,7 @@ document.addEventListener("click",e=>{
 $("#q").addEventListener("input",e=>{query=e.target.value;renderHome()});
 $("#back").onclick=closeSong;
 $("#editBtn").onclick=()=>{if(editing){saveEdit()}else{editing=true;renderDetail()}};
-$("#statusSel").onchange=e=>{cur.status=e.target.value;save();renderDetail();toast("已移到「"+({done:"練過的歌",base:"基礎",todo:"待練"})[cur.status]+"」")};
+$("#statusSel").onchange=e=>{cur.status=e.target.value;save();renderDetail();toast("已移到「"+({done:"練過的歌",practicing:"練習中",base:"基礎",todo:"待練"})[cur.status]+"」")};
 $("#pdfOne").onclick=()=>exportPDF([cur],view,`${cur.title}.pdf`);
 $("#pdfAll").onclick=()=>exportPDF(filtered(),{orig:true,furi:true,roma:false,zh:true,en:true},`歌單_${new Date().toISOString().slice(0,10)}.pdf`);
 $("#addForm").addEventListener("submit",e=>{e.preventDefault();const t=$("#addTitle").value.trim();if(!t)return;
