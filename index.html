@@ -233,21 +233,21 @@ const SEED = [
  ["500W","Be my Girl","ja","流行",71,"done"],
  ["愛とか恋とか","Novelbright","ja","抒情",90,"done"],
  ["そっけない","RADWIMPS","ja","抒情",55,"done"],
- ["怪獣の花唄","Vaundy","ja","搖滾",75,"done"],
+ ["怪獣の花唄","Vaundy","ja","搖滾",150,"done"],
  ["瞬き","back number","ja","抒情",80,"done"],
  ["まちがいさがし","菅田将暉","ja","抒情",78,"done"],
  ["不言論","BAK","ja","流行",81,"done"],
- ["ビリミリオン","優里","ja","流行",63,"done","","ビリオンミリオン"],
+ ["ビリミリオン","優里","ja","流行",125,"done","","ビリオンミリオン"],
  ["かくれんぼ","優里","ja","抒情",78,"done"],
  ["瞳をとじて","平井堅","ja","抒情",71,"done","","目を閉じて"],
  ["猫","DISH//","ja","抒情",77,"done"],
  ["怪獣","サカナクション","ja","搖滾",90,"done"],
  ["レオ","優里","ja","抒情",84,"done"],
- ["世界が終るまでは…","WANDS","ja","搖滾",52,"done","","世界が終わるまで"],
- ["オレンジ","SPYAIR","ja","搖滾",50,"done"],
+ ["世界が終るまでは…","WANDS","ja","搖滾",104,"done","","世界が終わるまで"],
+ ["オレンジ","SPYAIR","ja","搖滾",101,"done"],
  ["3月9日","レミオロメン","ja","抒情",76,"done"],
  ["ホログラム","NICO Touches the Walls","ja","搖滾",76,"done"],
- ["ワタリドリ","[Alexandros]","ja","搖滾",68,"done"],
+ ["ワタリドリ","[Alexandros]","ja","搖滾",135,"done"],
  ["W/X/Y","Tani Yuuki","ja","流行",71,"done"],
  ["全力少年","スキマスイッチ","ja","流行",67,"done"],
  ["魔法の絨毯","川崎鷹也","ja","抒情",70,"done","","魔法的絨毯"],
@@ -255,13 +255,13 @@ const SEED = [
  ["毒藥","蕭秉治","zh","抒情",64,"done"],
  ["飛魚","蘇打綠","zh","流行",64,"done"],
  ["祈禱","李崗霖","zh","民謠",65,"done"],
- ["希望你回來","TRASH","zh","搖滾",53,"done"],
+ ["希望你回來","TRASH","zh","搖滾",105,"done"],
  ["交換餘生","林俊傑","zh","抒情",65,"done"],
  ["面具","韋禮安","zh","抒情",72,"done"],
  ["演員","薛之謙","zh","抒情",46,"done"],
  ["嗜愛動物","麋先生","zh","搖滾",82,"done"],
  ["長成什麼樣子算愛情","麋先生","zh","搖滾",67,"done"],
- ["長途夜車","滅火器","zh","搖滾",52,"done"],
+ ["長途夜車","滅火器","zh","搖滾",103,"done"],
  ["海上的人","滅火器","zh","搖滾",94,"done"],
  ["好久不見","陳奕迅","zh","抒情",73,"done"],
  ["思念","黃宣","zh","R&B",71,"done"],
@@ -293,7 +293,7 @@ const SEED = [
  ["カブトムシ","aiko","ja","抒情",74,"todo"],
  ["しわあわせ","Vaundy","ja","抒情",80,"todo","","しあわせ"]
 ];
-const DATA_VER = 7;
+const DATA_VER = 8;
 const LANG = {ja:"日文",zh:"中文",en:"英文",ko:"韓文",other:"其他"};
 const GENRES = ["抒情","流行","搖滾","民謠","R&B","說唱","動漫/影視","其他"];
 const KEY = "songbook.v1";
@@ -386,12 +386,12 @@ const RESEARCH = [
  {
   "title": "怪獣の花唄",
   "artist": "Vaundy",
-  "bpm": 75,
+  "bpm": 150,
   "key": "D",
   "genre": "搖滾",
-  "referenceBpm": "75 / 150",
+  "referenceBpm": "150",
   "referenceKey": "D",
-  "note": "原唱和弦譜明示 D 大調，BPM 採半速拍點 75（倍速 150）。",
+  "note": "原唱和弦譜明示 D 大調、BPM 150，補參考調性。",
   "sources": [
    "https://keytube.net/song/detail/24128",
    "https://bpm-database.tokyo/album/qbEYvRca",
@@ -444,12 +444,12 @@ const RESEARCH = [
  {
   "title": "ビリミリオン",
   "artist": "優里",
-  "bpm": 63,
+  "bpm": 125,
   "key": "Bb",
   "genre": "流行",
-  "referenceBpm": "63 / 125（局部 188）",
+  "referenceBpm": "125；局部 188",
   "referenceKey": "Bb",
-  "note": "和弦譜明示 Bb，BPM 採半速拍點 63（倍速 125）。",
+  "note": "和弦譜明示 Bb、主體 BPM 125（局部標示 188／3拍子），保留 125。",
   "sources": [
    "https://ja.chordwiki.org/wiki/ビリミリオン（優里）"
   ]
@@ -529,12 +529,12 @@ const RESEARCH = [
  {
   "title": "世界が終るまでは…",
   "artist": "WANDS",
-  "bpm": 52,
+  "bpm": 104,
   "key": "C",
   "genre": "搖滾",
-  "referenceBpm": "52 / 104",
+  "referenceBpm": "104 / 106",
   "referenceKey": "C",
-  "note": "原唱和弦譜明示 C，BPM 採半速拍點 52（倍速 104）。",
+  "note": "原唱和弦譜明示 C、BPM 104，保留原 BPM。",
   "sources": [
    "https://ja.chordwiki.org/wiki/世界が終るまでは…",
    "https://keytube.net/song/detail/30812"
@@ -543,12 +543,12 @@ const RESEARCH = [
  {
   "title": "オレンジ",
   "artist": "SPYAIR",
-  "bpm": 50,
+  "bpm": 101,
   "key": "D",
   "genre": "搖滾",
-  "referenceBpm": "50 / 100",
+  "referenceBpm": "100–101",
   "referenceKey": "D",
-  "note": "原曲 D 大調，BPM 採半速拍點 50（倍速 100）。",
+  "note": "原曲 D 大調、BPM 101，補參考調性。",
   "sources": [
    "https://songdata.io/track/6M6ZNRplLNspFEn6Ab3mOv/-by-SPYAIR",
    "https://songbpm.com/%40spyair/orenzi-NT5wtrcer3"
@@ -587,12 +587,12 @@ const RESEARCH = [
  {
   "title": "ワタリドリ",
   "artist": "[Alexandros]",
-  "bpm": 68,
+  "bpm": 135,
   "key": "A",
   "genre": "搖滾",
-  "referenceBpm": "68 / 135",
+  "referenceBpm": "135",
   "referenceKey": "A",
-  "note": "原唱和弦譜明示 A 大調，BPM 採半速拍點 68（倍速 135）。",
+  "note": "原唱和弦譜明示 A 大調、BPM 135，補參考調性。",
   "sources": [
    "https://keytube.net/song/detail/861",
    "https://ja.chordwiki.org/wiki/ワタリドリ"
@@ -703,12 +703,12 @@ const RESEARCH = [
  {
   "title": "希望你回來",
   "artist": "TRASH",
-  "bpm": 53,
+  "bpm": 105,
   "key": "Gm",
   "genre": "搖滾",
-  "referenceBpm": "53 / 105",
+  "referenceBpm": "105",
   "referenceKey": "Gm",
-  "note": "原曲 Gm 小調，BPM 採半速拍點 53（倍速 105）。",
+  "note": "原曲 Gm 小調、BPM 105，補參考調性 Gm。",
   "sources": [
    "https://songdata.io/track/0r4jJxnrDSYBDc001AWhjX/-by-TRASH"
   ]
@@ -791,12 +791,12 @@ const RESEARCH = [
  {
   "title": "長途夜車",
   "artist": "滅火器",
-  "bpm": 52,
+  "bpm": 103,
   "key": "F",
   "genre": "搖滾",
-  "referenceBpm": "52 / 103",
+  "referenceBpm": "103",
   "referenceKey": "F",
-  "note": "專輯版本原調 F 大調，BPM 採半速拍點 52（倍速 103）。",
+  "note": "專輯版本原調 F 大調、BPM 103，補 BPM 103 與 Key F。",
   "sources": [
    "https://songdata.io/track/3aH4zwCqiIEH08zbJO4jlH/-by-Fire-EX",
    "https://bpm-database.tokyo/music/dcvWhP3g"
@@ -1265,7 +1265,7 @@ function mergeSeed(){ // fill in researched info without overwriting the user's 
     if(r[7]&&s.title===r[7]){s.title=r[0];s.lang=r[2]}
     if(!s.artist||(s.title==="魚"&&s.artist==="陳綺貞"))s.artist=r[1];
     if(!s.genre)s.genre=r[3];
-    if((!s.bpm||(s.bpm>100&&r[4]<=100)||(s.title==="演員"&&s.bpm===92))&&r[4])s.bpm=r[4];
+    if((!s.bpm||s.bpm===r[4]*2||(r[4]>100&&Math.abs(s.bpm*2-r[4])<=1))&&r[4])s.bpm=r[4];
     if(/^(可能是 ZQS|陳綺貞、怕胖團)/.test(s.note||""))s.note="";
     if(!s.note&&r[6])s.note=r[6];
   });
@@ -1288,7 +1288,7 @@ function metadataPlan(list){
     if(counts.get(metadataIdentity(s))!==1)return [];
     const r=researchFor(s);if(!r)return [];
     const changes={};
-    if((emptyMetadata(s.bpm)||(s.bpm>100&&r.bpm<=100)||(s.title==="演員"&&s.bpm===92))&&Number.isFinite(r.bpm)&&r.bpm>0&&s.bpm!==r.bpm)changes.bpm=r.bpm;
+    if((emptyMetadata(s.bpm)||Math.abs(s.bpm-r.bpm*2)<=1||Math.abs(s.bpm*2-r.bpm)<=1)&&Number.isFinite(r.bpm)&&r.bpm>0&&s.bpm!==r.bpm)changes.bpm=r.bpm;
     if(emptyMetadata(s.key)&&r.key)changes.key=r.key;
     if(emptyMetadata(s.genre)&&r.genre)changes.genre=r.genre;
     if(emptyMetadata(s.genre)&&r.genre)changes.genre=r.genre;
@@ -1617,7 +1617,7 @@ $("#mergeJson").onchange=async e=>{
       const src=inMap.get(k);if(!src)continue;
       let chg=false;
       for(const fld of ["bpm","key","genre","lyrics","note"]){
-        if((emptyMetadata(s[fld])||(fld==="bpm"&&((s.bpm>100&&src.bpm<=100)||(s.title==="演員"&&s.bpm===92))))&&!emptyMetadata(src[fld])){s[fld]=src[fld];chg=true}
+        if((emptyMetadata(s[fld])||(fld==="bpm"&&(Math.abs(s.bpm-src.bpm*2)<=1||Math.abs(s.bpm*2-src.bpm)<=1)&&s.bpm!==src.bpm))&&!emptyMetadata(src[fld])){s[fld]=src[fld];chg=true}
       }
       if(chg)updated++;
     }

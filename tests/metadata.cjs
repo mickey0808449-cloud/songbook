@@ -14,7 +14,7 @@ assert.equal(reviewed.length,65);
 for(let i=0;i<65;i++){
  assert.equal(reviewed[i].bpm,audit[i].output_bpm);
  assert.equal(reviewed[i].key,audit[i].output_key);
- assert.ok(reviewed[i].bpm<=100);
+ if(reviewed[i].genre==='抒情')assert.ok(reviewed[i].bpm<=100);
 }
 ctx.fixture=[{id:'a',title:'test',artist:'A',bpm:null,key:'',status:'practicing',note:'keep',lyrics:'user supplied text',custom:{keep:true}},
  {id:'b',title:'test',artist:'B',bpm:65,key:'custom key',status:'base',note:'keep also',lyrics:'other text'},

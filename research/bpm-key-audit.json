@@ -87,11 +87,11 @@
     "title": "怪獣の花唄",
     "artist": "Vaundy",
     "original_bpm": 150,
-    "output_bpm": 75,
-    "reference_bpm": "75 / 150",
+    "output_bpm": 150,
+    "reference_bpm": "150",
     "reference_key": "D",
     "output_key": "D",
-    "assessment": "原唱和弦譜明示 D 大調，BPM 採半速拍點 75（倍速 150）。",
+    "assessment": "原唱和弦譜明示 D 大調、BPM 150，補參考調性。",
     "sources": [
       "https://keytube.net/song/detail/24128",
       "https://bpm-database.tokyo/album/qbEYvRca",
@@ -145,11 +145,11 @@
     "title": "ビリミリオン",
     "artist": "優里",
     "original_bpm": 125,
-    "output_bpm": 63,
-    "reference_bpm": "63 / 125（局部 188）",
+    "output_bpm": 125,
+    "reference_bpm": "125；局部 188",
     "reference_key": "Bb",
     "output_key": "Bb",
-    "assessment": "和弦譜明示 Bb，BPM 採半速拍點 63（倍速 125）。",
+    "assessment": "和弦譜明示 Bb、主體 BPM 125（局部標示 188／3拍子），保留 125。",
     "sources": [
       "https://ja.chordwiki.org/wiki/ビリミリオン（優里）"
     ]
@@ -230,11 +230,11 @@
     "title": "世界が終るまでは…",
     "artist": "WANDS",
     "original_bpm": 104,
-    "output_bpm": 52,
-    "reference_bpm": "52 / 104",
+    "output_bpm": 104,
+    "reference_bpm": "104 / 106",
     "reference_key": "C",
     "output_key": "C",
-    "assessment": "原唱和弦譜明示 C，BPM 採半速拍點 52（倍速 104）。",
+    "assessment": "原唱和弦譜明示 C、BPM 104，保留原 BPM。",
     "sources": [
       "https://ja.chordwiki.org/wiki/世界が終るまでは…",
       "https://keytube.net/song/detail/30812"
@@ -244,11 +244,11 @@
     "title": "オレンジ",
     "artist": "SPYAIR",
     "original_bpm": 101,
-    "output_bpm": 50,
-    "reference_bpm": "50 / 100",
+    "output_bpm": 101,
+    "reference_bpm": "100–101",
     "reference_key": "D",
     "output_key": "D",
-    "assessment": "原曲 D 大調，BPM 採半速拍點 50（倍速 100）。",
+    "assessment": "原曲 D 大調、BPM 101，補參考調性。",
     "sources": [
       "https://songdata.io/track/6M6ZNRplLNspFEn6Ab3mOv/-by-SPYAIR",
       "https://songbpm.com/%40spyair/orenzi-NT5wtrcer3"
@@ -288,11 +288,11 @@
     "title": "ワタリドリ",
     "artist": "[Alexandros]",
     "original_bpm": 135,
-    "output_bpm": 68,
-    "reference_bpm": "68 / 135",
+    "output_bpm": 135,
+    "reference_bpm": "135",
     "reference_key": "A",
     "output_key": "A",
-    "assessment": "原唱和弦譜明示 A 大調，BPM 採半速拍點 68（倍速 135）。",
+    "assessment": "原唱和弦譜明示 A 大調、BPM 135，補參考調性。",
     "sources": [
       "https://keytube.net/song/detail/861",
       "https://ja.chordwiki.org/wiki/ワタリドリ"
@@ -404,11 +404,11 @@
     "title": "希望你回來",
     "artist": "TRASH",
     "original_bpm": 105,
-    "output_bpm": 53,
-    "reference_bpm": "53 / 105",
+    "output_bpm": 105,
+    "reference_bpm": "105",
     "reference_key": "Gm",
     "output_key": "Gm",
-    "assessment": "原曲 Gm 小調，BPM 採半速拍點 53（倍速 105）。",
+    "assessment": "原曲 Gm 小調、BPM 105，補參考調性 Gm。",
     "sources": [
       "https://songdata.io/track/0r4jJxnrDSYBDc001AWhjX/-by-TRASH"
     ]
@@ -492,11 +492,11 @@
     "title": "長途夜車",
     "artist": "滅火器",
     "original_bpm": null,
-    "output_bpm": 52,
-    "reference_bpm": "52 / 103",
+    "output_bpm": 103,
+    "reference_bpm": "103",
     "reference_key": "F",
     "output_key": "F",
-    "assessment": "專輯版本原調 F 大調，BPM 採半速拍點 52（倍速 103）。",
+    "assessment": "專輯版本原調 F 大調、BPM 103，補 BPM 103 與 Key F。",
     "sources": [
       "https://songdata.io/track/3aH4zwCqiIEH08zbJO4jlH/-by-Fire-EX",
       "https://bpm-database.tokyo/music/dcvWhP3g"

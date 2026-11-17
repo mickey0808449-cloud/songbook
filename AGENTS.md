@@ -35,7 +35,7 @@ Jen 上歌唱課用的個人歌單網頁。純靜態單一檔案，部署在 Git
 ### SEED（預設歌單）
 每列格式：`[title, artist, lang, genre, bpm, status, note, oldTitle]`
 - `oldTitle`：舊名（錯字修正用），`mergeSeed()` 會把使用者資料中的舊名改成新名。
-- 改 SEED → `DATA_VER` +1（目前是 7）。
+- 改 SEED → `DATA_VER` +1（目前是 8）。
 
 ### 載入流程
 `load()` → 讀 localStorage → 舊格式用 `combineOld()` 轉換 → 若存的版本 < `DATA_VER` 就跑 `mergeSeed()` → `save()`。
@@ -78,7 +78,7 @@ html2canvas 1.4.1 + jsPDF 2.5.1（cdnjs）。離螢幕產生 A4 頁面（794×11
 
 ## 待辦
 
-- 已將 65 首的 BPM（全面統一為 ≤ 97 的半速拍點）、Key 與〈500W〉風格（流行）全數補齊，`DATA_VER` 改為 7。
+- 已將 65 首的 BPM（抒情／慢歌採半速拍點，指定搖滾／快歌維持原速）、Key 與〈500W〉風格（流行）全數補齊，`DATA_VER` 改為 8。
 - 逐曲來源與判讀見 `research/核對說明.md`。
 
 ## 查核資料與安全補齊
