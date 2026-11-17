@@ -88,7 +88,9 @@ footer{font-size:13px;color:var(--muted);display:flex;flex-wrap:wrap;gap:8px;ali
 .note{font-size:13px;color:var(--muted);background:var(--card);border-radius:10px;padding:10px 12px;margin-bottom:12px}
 .editor{display:grid;gap:10px;background:var(--card);border-radius:var(--radius);padding:16px;margin-bottom:14px}
 .editor .row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px}
-.editor label{font-size:12px;color:var(--muted);display:grid;gap:4px}
+.editor label{font-size:12px;color:var(--muted);display:grid;gap:4px;align-content:start}
+.editor .row{align-items:start}
+.editor input,.editor select{height:40px}
 .editor input,.editor select,.editor textarea{padding:9px 10px;border:1px solid var(--line);border-radius:10px;background:var(--field);width:100%}
 .editor textarea{min-height:420px;line-height:1.6;resize:vertical}
 .tx{display:grid;grid-template-columns:1fr 1fr;gap:8px}
@@ -219,15 +221,15 @@ const SEED = [
  ["W/X/Y","Tani Yuuki","ja","流行",142,"done"],
  ["全力少年","スキマスイッチ","ja","流行",134,"done"],
  ["魔法の絨毯","川崎鷹也","ja","抒情",139,"done","","魔法的絨毯"],
- ["太陽與地球","盧廣仲","zh","流行",null,"done"],["毒藥","蕭秉治","zh","抒情",null,"done"],["飛魚","蘇打綠","zh","流行",null,"done"],["祈禱","李崗霖","zh","民謠",null,"done"],
+ ["太陽與地球","盧廣仲","zh","流行",132,"done"],["毒藥","蕭秉治","zh","抒情",null,"done"],["飛魚","蘇打綠","zh","流行",null,"done"],["祈禱","李崗霖","zh","民謠",null,"done"],
  ["希望你回來","TRASH","zh","搖滾",105,"done"],
- ["交換餘生","林俊傑","zh","抒情",null,"done"],["面具","韋禮安","zh","抒情",null,"done"],["演員","薛之謙","zh","抒情",null,"done"],
+ ["交換餘生","林俊傑","zh","抒情",65,"done"],["面具","韋禮安","zh","抒情",null,"done"],["演員","薛之謙","zh","抒情",92,"done"],
  ["嗜愛動物","麋先生","zh","搖滾",null,"done"],["長成什麼樣子算愛情","麋先生","zh","搖滾",null,"done"],
  ["長途夜車","滅火器","zh","搖滾",null,"done"],["海上的人","滅火器","zh","搖滾",null,"done"],["好久不見","陳奕迅","zh","抒情",null,"done"],
  ["思念","黃宣","zh","R&B",null,"done"],["消愁","毛不易","zh","民謠",null,"done"],["一程山路","毛不易","zh","民謠",null,"done"],
- ["盛夏","毛不易","zh","民謠",null,"done"],["借","毛不易","zh","民謠",null,"done"],["眼底星空","李聖傑","zh","抒情",null,"done"],
+ ["盛夏","毛不易","zh","民謠",null,"done"],["借","毛不易","zh","民謠",75,"done"],["眼底星空","李聖傑","zh","抒情",null,"done"],
  ["如果我變成回憶","Tank","zh","抒情",null,"done"],["月牙灣","F.I.R.","zh","流行",null,"done"],["眼色","林宥嘉","zh","抒情",null,"done"],
- ["大人中","盧廣仲","zh","流行",null,"done"],["美人魚","林俊傑","zh","抒情",null,"done"],["逆時光的浪","畢書盡","zh","抒情",null,"done"],
+ ["大人中","盧廣仲","zh","流行",null,"done"],["美人魚","林俊傑","zh","抒情",95,"done"],["逆時光的浪","畢書盡","zh","抒情",null,"done"],
  ["誰","廖俊濤","zh","抒情",null,"done"],["下雨的晚上","黃玠","zh","民謠",null,"done"],["讓我留在你身邊","陳奕迅","zh","抒情",null,"done"],
  ["這是你期盼的長大嗎","ZQS","zh","流行",null,"done","","這是期盼的長大嗎"],
  ["離開的一路上","理想混蛋","zh","流行",null,"done"],["不是因為天氣晴朗才愛你","理想混蛋","zh","流行",null,"done"],
@@ -236,7 +238,7 @@ const SEED = [
  ["ひまわりの約束","秦基博","ja","抒情",79,"todo"],["Planet","ラムジ","ja","流行",null,"todo"],["さよならエレジー","菅田将暉","ja","搖滾",155,"todo"],
  ["カブトムシ","aiko","ja","抒情",74,"todo"],["しわあわせ","Vaundy","ja","抒情",null,"todo","","しあわせ"]
 ];
-const DATA_VER = 3;
+const DATA_VER = 4;
 const LANG = {ja:"日文",zh:"中文",en:"英文",ko:"韓文",other:"其他"};
 const GENRES = ["抒情","流行","搖滾","民謠","R&B","說唱","動漫/影視","其他"];
 const KEY = "songbook.v1";
