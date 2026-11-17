@@ -1504,7 +1504,7 @@ function combineOld(lyr,tr){ // migrate old two-box format
 /* ---------- detail ---------- */
 function searchLinks(s){
   const q=encodeURIComponent((s.title+" "+s.artist).trim());
-  return `<div class="links"><a href="https://music.youtube.com/search?q=${q}" target="_blank" rel="noopener">在 YT Music 找這首</a></div>`;
+  return `<div class="links"><a href="https://music.youtube.com/search?q=${q}" target="_blank" rel="noopener">YouTube Music</a> · <a href="https://www.youtube.com/results?search_query=${q}" target="_blank" rel="noopener">YouTube</a></div>`;
 }
 function openSong(id){cur=songs.find(s=>s.id===id);if(!cur)return;editing=!cur.lyrics;view={orig:true,furi:true,roma:true,zh:true,en:true};
   $("#detail").classList.add("open");$("#detail").setAttribute("aria-hidden","false");document.body.style.overflow="hidden";$("#detail").scrollTop=0;renderDetail()}
