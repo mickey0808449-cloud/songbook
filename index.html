@@ -309,7 +309,7 @@ function filtered(){
 }
 
 function renderSegs(){
-  const g=[["lang","語言"],["genre","風格"],["tempo","節奏(BPM)"],["artist","歌手"],["none","不分組"]];
+  const g=[["lang","語言"],["genre","風格"],["tempo","BPM"],["artist","歌手"],["none","不分組"]];
   $("#groupSeg").innerHTML='<span class="lbl">分類</span>'+g.map(([k,l])=>`<button class="chip ${groupBy===k?"on":""}" data-g="${k}">${l}</button>`).join("");
   const chips=(key,pairs)=>pairs.map(([k,l])=>`<button class="chip f ${F[key].has(k)?"on":""}" data-f="${key}" data-k="${esc(k)}">${esc(l)}</button>`).join("");
   const langs=Object.entries(LANG).filter(([k])=>songs.some(s=>s.lang===k));
