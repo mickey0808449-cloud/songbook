@@ -6,28 +6,38 @@
 <title>我的歌單</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+JP:wght@400;700&family=Noto+Serif+TC:wght@400;700&family=LXGW+WenKai+TC:wght@400;700&family=Klee+One:wght@400;600&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#f6f4ef; --card:#fff; --ink:#1f1d1a; --muted:#77716a; --line:#e6e1d8;
-  --accent:#c2553a; --accent-soft:#f6e3dc; --todo:#3a6ea5; --todo-soft:#e1ebf6;
-  --radius:14px;
-  font-family:"Noto Sans TC","Noto Sans JP",system-ui,sans-serif;
+  --bg:#f6f4ef; --card:#fff; --ink:#1f1d1a; --muted:#77716a; --line:#e6e1d8; --field:#fff; --tag:#f1eee8; --tagink:#5d574f;
+  --accent:#c2553a; --accent-soft:#f6e3dc; --zh:#2f8f4e; --en:#2f6db3; --todo:#3a6ea5; --todo-soft:#e1ebf6; --head:rgba(246,244,239,.95);
+  --radius:14px; --maxw:860px;
+  --font:"Noto Sans TC","Noto Sans JP",system-ui,sans-serif;
+  font-family:var(--font);
 }
+:root[data-theme="dark"]{
+  --bg:#141312; --card:#1e1d1b; --ink:#ece8e1; --muted:#9a948b; --line:#33302c; --field:#252421; --tag:#2c2a27; --tagink:#c9c3b9;
+  --accent:#e0795c; --accent-soft:#3a2620; --zh:#5cc97f; --en:#7ab4f0; --todo:#7aa7d8; --head:rgba(20,19,18,.92);
+}
+:root[data-font="serif"]{--font:"Noto Serif TC","Noto Serif JP",serif}
+:root[data-font="kai"]{--font:"LXGW WenKai TC","Klee One","Noto Serif JP",serif}
+:root[data-font="system"]{--font:system-ui,-apple-system,"PingFang TC","Hiragino Sans","Microsoft JhengHei",sans-serif}
+:root[data-width="wide"]{--maxw:1200px}
+:root[data-width="full"]{--maxw:100%}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);-webkit-text-size-adjust:100%}
 button,input,select,textarea{font:inherit;color:inherit}
 button{cursor:pointer}
-.wrap{max-width:860px;margin:0 auto;padding:20px 16px 80px}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:20px 16px 80px}
 header h1{margin:0;font-size:26px;letter-spacing:.02em}
 header p{margin:4px 0 0;color:var(--muted);font-size:14px}
 .toolbar{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 6px;align-items:center}
-.toolbar input[type=search]{flex:1 1 200px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:#fff}
+.toolbar input[type=search]{flex:1 1 200px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--field)}
 .seg{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 14px;align-items:center}
 .seg span.lbl{font-size:13px;color:var(--muted);margin-right:2px}
-.chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 12px;font-size:13px}
+.chip{border:1px solid var(--line);background:var(--field);border-radius:999px;padding:6px 12px;font-size:13px}
 .chip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
-.btn{border:1px solid var(--line);background:#fff;border-radius:10px;padding:9px 14px;font-size:14px}
+.btn{border:1px solid var(--line);background:var(--field);border-radius:10px;padding:9px 14px;font-size:14px}
 .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
 .btn.small{padding:6px 10px;font-size:13px}
 .btn:disabled{opacity:.5;cursor:default}
@@ -36,14 +46,14 @@ section.panel h2{margin:0 0 10px;font-size:18px;display:flex;align-items:center;
 section.panel h2 .count{font-size:13px;font-weight:500;color:var(--muted)}
 .dot{width:10px;height:10px;border-radius:50%;display:inline-block}
 .addform{display:grid;grid-template-columns:1fr 110px auto;gap:8px;margin-bottom:12px}
-.addform input,.addform select{padding:9px 10px;border:1px solid var(--line);border-radius:10px;background:#fff;min-width:0}
+.addform input,.addform select{padding:9px 10px;border:1px solid var(--line);border-radius:10px;background:var(--field);min-width:0}
 .group-h{font-size:12px;color:var(--muted);margin:12px 0 6px;letter-spacing:.05em}
 .list{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px}
-.song{display:flex;flex-direction:column;align-items:flex-start;gap:3px;text-align:left;border:1px solid var(--line);background:#fff;border-radius:12px;padding:10px 12px;min-width:0}
-.song:hover{border-color:#cfc7ba}
+.song{display:flex;flex-direction:column;align-items:flex-start;gap:3px;text-align:left;border:1px solid var(--line);background:var(--card);border-radius:12px;padding:10px 12px;min-width:0}
+.song:hover{border-color:var(--muted)}
 .song .t{font-weight:500;font-size:15px;width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .song .m{font-size:12px;color:var(--muted);display:flex;gap:6px;flex-wrap:wrap}
-.tag{font-size:11px;border-radius:6px;padding:1px 6px;background:#f1eee8;color:#5d574f}
+.tag{font-size:11px;border-radius:6px;padding:1px 6px;background:var(--tag);color:var(--tagink)}
 .tag.lyr{background:var(--accent-soft);color:var(--accent)}
 .empty{color:var(--muted);font-size:14px;padding:6px 0}
 footer{font-size:13px;color:var(--muted);display:flex;flex-wrap:wrap;gap:8px;align-items:center}
@@ -51,8 +61,8 @@ footer{font-size:13px;color:var(--muted);display:flex;flex-wrap:wrap;gap:8px;ali
 /* detail */
 #detail{position:fixed;inset:0;background:var(--bg);overflow-y:auto;display:none;z-index:10}
 #detail.open{display:block}
-.dhead{position:sticky;top:0;background:rgba(246,244,239,.95);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);z-index:2}
-.dhead .in{max-width:860px;margin:0 auto;padding:10px 16px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.dhead{position:sticky;top:0;background:var(--head);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);z-index:2}
+.dhead .in{max-width:var(--maxw);margin:0 auto;padding:10px 16px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .dhead .sp{flex:1}
 .dtitle{font-size:26px;margin:18px 0 2px}
 .dartist{color:var(--muted);margin:0 0 12px}
@@ -61,29 +71,44 @@ footer{font-size:13px;color:var(--muted);display:flex;flex-wrap:wrap;gap:8px;ali
 .links{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px;font-size:13px}
 .links a{color:var(--todo)}
 .toggles{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 14px}
-.lyrics{background:#fff;border-radius:var(--radius);padding:20px 18px}
-.ln{margin:0 0 14px}
+.lyrics{background:var(--card);border-radius:var(--radius);padding:20px 18px}
+.ln{display:flex;gap:14px;padding:12px 0;border-bottom:1px solid var(--line)}
+.ln:last-child{border-bottom:0}
+.ln .no{flex:none;width:32px;height:32px;border-radius:50%;background:var(--tag);color:var(--muted);display:grid;place-items:center;font-size:13px;font-weight:700;margin-top:6px}
+.ln .body{flex:1;min-width:0}
 .ln .o{font-size:19px;line-height:1.5}
-.ln.ja.furi .o{padding-top:.55em;line-height:1.9}
-.ln .r{font-size:13px;color:#8a837a;margin-top:1px;font-family:system-ui,sans-serif}
-.ln .tr{font-size:15px;color:#5a544c;margin-top:2px}
-.gap{height:14px}
+.ln .zh{font-size:16px;color:var(--zh);margin-top:3px}
+.ln .en{font-size:15px;color:var(--en);margin-top:3px}
+.sec{height:22px}
+.ln .o.fu{padding-top:.55em;line-height:1.9}
+.ln .r{font-size:13px;color:var(--muted);margin-top:1px;font-family:system-ui,sans-serif}
 .rb{position:relative;display:inline-block}
 .rt{position:absolute;left:-3em;right:-3em;bottom:100%;text-align:center;font-size:.48em;line-height:1;color:var(--accent);white-space:nowrap;margin-bottom:.12em}
-.note{font-size:13px;color:var(--muted);background:#fff;border-radius:10px;padding:10px 12px;margin-bottom:12px}
-.editor{display:grid;gap:10px;background:#fff;border-radius:var(--radius);padding:16px;margin-bottom:14px}
+.note{font-size:13px;color:var(--muted);background:var(--card);border-radius:10px;padding:10px 12px;margin-bottom:12px}
+.editor{display:grid;gap:10px;background:var(--card);border-radius:var(--radius);padding:16px;margin-bottom:14px}
 .editor .row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px}
 .editor label{font-size:12px;color:var(--muted);display:grid;gap:4px}
-.editor input,.editor select,.editor textarea{padding:9px 10px;border:1px solid var(--line);border-radius:10px;background:#fff;width:100%}
-.editor textarea{min-height:260px;line-height:1.6;resize:vertical}
+.editor input,.editor select,.editor textarea{padding:9px 10px;border:1px solid var(--line);border-radius:10px;background:var(--field);width:100%}
+.editor textarea{min-height:420px;line-height:1.6;resize:vertical}
 .tx{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 @media (max-width:620px){.tx{grid-template-columns:1fr}.addform{grid-template-columns:1fr 90px}.addform .btn{grid-column:1/-1}}
 .status{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:999px;font-size:14px;display:none;z-index:50;max-width:90vw;text-align:center}
 .status.show{display:block}
 
+.hrow{display:flex;align-items:flex-start;gap:12px}.hrow header{flex:1}
+.gear{width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:var(--field);font-size:18px;line-height:1}
+#settings{position:fixed;top:64px;right:16px;width:300px;max-width:calc(100vw - 32px);background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:0 12px 32px rgba(0,0,0,.18);z-index:30;display:none}
+#settings.open{display:block}
+#settings h3{margin:0 0 8px;font-size:14px}
+#settings .grp{margin-bottom:14px}
+.segbar{display:flex;background:var(--tag);border-radius:10px;padding:3px;gap:2px}
+.segbar button{flex:1;border:0;background:transparent;border-radius:8px;padding:8px 4px;font-size:14px;color:var(--muted)}
+.segbar button.on{background:var(--card);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.12)}
+#settings .hint{font-size:12px;color:var(--muted)}
 /* PDF pages (offscreen) */
 #pdfstage{position:fixed;left:-20000px;top:0}
-.pg{width:794px;height:1123px;background:#fff;padding:60px 64px;overflow:hidden;color:#1f1d1a;font-family:"Noto Sans TC","Noto Sans JP",sans-serif}
+.pg{width:794px;height:1123px;background:#fff;padding:60px 64px;overflow:hidden;color:#1f1d1a;font-family:var(--font)}
+.pg .ln .r{color:#8a837a}.pg .ln .zh{color:#2f8f4e}.pg .ln .en{color:#2f6db3}.pg .ln{border-color:#e6e1d8}.pg .ln .no{background:#f1eee8;color:#77716a}
 .pg .ph{border-bottom:2px solid #1f1d1a;padding-bottom:10px;margin-bottom:22px}
 .pg .ph .pt{font-size:28px;font-weight:700}
 .pg .ph .pm{font-size:13px;color:#77716a;margin-top:4px}
@@ -94,10 +119,13 @@ footer{font-size:13px;color:var(--muted);display:flex;flex-wrap:wrap;gap:8px;ali
 </head>
 <body>
 <div class="wrap" id="home">
-  <header>
-    <h1>我的歌單</h1>
-    <p id="summary"></p>
-  </header>
+  <div class="hrow">
+    <header>
+      <h1>我的歌單</h1>
+      <p id="summary"></p>
+    </header>
+    <button class="gear" id="gearBtn" aria-label="顯示設定">⚙︎</button>
+  </div>
 
   <div class="toolbar">
     <input type="search" id="q" placeholder="搜尋歌名或歌手">
@@ -139,30 +167,61 @@ footer{font-size:13px;color:var(--muted);display:flex;flex-wrap:wrap;gap:8px;ali
   <div class="wrap" id="dbody"></div>
 </div>
 
+<div id="settings" role="dialog" aria-label="顯示設定">
+  <div class="grp"><h3>主題</h3><div class="segbar" data-set="theme"><button data-v="system">跟系統</button><button data-v="light">淺色</button><button data-v="dark">深色</button></div></div>
+  <div class="grp"><h3>字體</h3><div class="segbar" data-set="font"><button data-v="sans">黑體</button><button data-v="serif">宋體</button><button data-v="kai">楷體</button><button data-v="system">系統</button></div></div>
+  <div class="grp"><h3>版面寬度</h3><div class="segbar" data-set="width"><button data-v="normal">標準</button><button data-v="wide">寬</button><button data-v="full">滿版</button></div></div>
+  <div class="hint">只會記在這台裝置的瀏覽器。PDF 也會用這裡選的字體。</div>
+</div>
 <div id="pdfstage"></div>
 <div class="status" id="status"></div>
 
 <script>
 /* ---------- seed data ---------- */
 const SEED = [
- // [title, artist, lang, genre, status]
- ["メリーコランド","","ja","","done"],["ドライフラワー","優里","ja","抒情","done"],["幾億光年","Omoinotake","ja","流行","done"],["500W","","ja","","done"],
- ["愛とか恋とか","","ja","","done"],["そっけない","RADWIMPS","ja","抒情","done"],["怪獣の花唄","Vaundy","ja","搖滾","done"],["瞬き","back number","ja","抒情","done"],
- ["まちがいさがし","菅田将暉","ja","抒情","done"],["不言論","","ja","","done"],["ビリオンミリオン","","ja","","done"],["かくれんぼ","優里","ja","抒情","done"],
- ["目を閉じて","","ja","","done"],["猫","DISH//","ja","抒情","done"],["怪獣","サカナクション","ja","搖滾","done"],["レオ","優里","ja","抒情","done"],
- ["世界が終わるまで","WANDS","ja","搖滾","done"],["オレンジ","","ja","","done"],["3月9日","レミオロメン","ja","抒情","done"],["ホログラム","NICO Touches the Walls","ja","搖滾","done"],
- ["ワタリドリ","[Alexandros]","ja","搖滾","done"],["W/X/Y","Tani Yuuki","ja","流行","done"],["全力少年","スキマスイッチ","ja","流行","done"],["魔法的絨毯","","zh","","done"],
- ["太陽與地球","","zh","","done"],["毒藥","","zh","","done"],["飛魚","","zh","","done"],["祈禱","","zh","","done"],["希望你回來","","zh","","done"],
- ["交換餘生","林俊傑","zh","抒情","done"],["面具","","zh","","done"],["演員","薛之謙","zh","抒情","done"],["嗜愛動物","","zh","","done"],
- ["長成什麼樣子算愛情","","zh","","done"],["長途夜車","","zh","","done"],["海上的人","","zh","","done"],["好久不見","陳奕迅","zh","抒情","done"],
- ["思念","","zh","","done"],["消愁","毛不易","zh","民謠","done"],["一程山路","毛不易","zh","民謠","done"],["盛夏","毛不易","zh","民謠","done"],["借","毛不易","zh","民謠","done"],
- ["眼底星空","","zh","","done"],["如果我變成回憶","Tank","zh","抒情","done"],["月牙灣","F.I.R.","zh","流行","done"],["眼色","","zh","","done"],
- ["大人中","盧廣仲","zh","流行","done"],["美人魚","林俊傑","zh","抒情","done"],["逆時光的浪","","zh","","done"],["誰","","zh","","done"],
- ["下雨的晚上","","zh","","done"],["讓我留在你身邊","陳奕迅","zh","抒情","done"],["這是期盼的長大嗎","","zh","","done"],["離開的一路上","","zh","","done"],
- ["不是因為天氣晴朗才愛你","理想混蛋","zh","流行","done"],["終於說出口","","zh","","done"],["魚","陳綺貞","zh","民謠","done"],["誰","","zh","","done"],
- ["想你的習慣","","zh","","done"],["Fix You","Coldplay","en","搖滾","done"],
- ["ひまわりの約束","秦基博","ja","抒情","todo"],["Planet","","ja","","todo"],["さよならエレジー","菅田将暉","ja","搖滾","todo"],["カブトムシ","aiko","ja","抒情","todo"],["しあわせ","","ja","","todo"]
+ // [title, artist, lang, genre, bpm, status, note, oldTitle]
+ ["メリーゴーランド","優里","ja","抒情",null,"done","","メリーコランド"],
+ ["ドライフラワー","優里","ja","抒情",74,"done"],
+ ["幾億光年","Omoinotake","ja","流行",96,"done"],
+ ["500W","","ja","",null,"done"],
+ ["愛とか恋とか","Novelbright","ja","抒情",90,"done"],
+ ["そっけない","RADWIMPS","ja","抒情",55,"done"],
+ ["怪獣の花唄","Vaundy","ja","搖滾",150,"done"],
+ ["瞬き","back number","ja","抒情",null,"done"],
+ ["まちがいさがし","菅田将暉","ja","抒情",78,"done"],
+ ["不言論","BAK","ja","流行",null,"done"],
+ ["ビリミリオン","優里","ja","流行",125,"done","","ビリオンミリオン"],
+ ["かくれんぼ","優里","ja","抒情",78,"done"],
+ ["目を閉じて","","ja","",null,"done"],
+ ["猫","DISH//","ja","抒情",77,"done"],
+ ["怪獣","サカナクション","ja","搖滾",180,"done"],
+ ["レオ","優里","ja","抒情",84,"done"],
+ ["世界が終るまでは…","WANDS","ja","搖滾",104,"done","","世界が終わるまで"],
+ ["オレンジ","","ja","",null,"done"],
+ ["3月9日","レミオロメン","ja","抒情",76,"done"],
+ ["ホログラム","NICO Touches the Walls","ja","搖滾",null,"done"],
+ ["ワタリドリ","[Alexandros]","ja","搖滾",135,"done"],
+ ["W/X/Y","Tani Yuuki","ja","流行",142,"done"],
+ ["全力少年","スキマスイッチ","ja","流行",134,"done"],
+ ["魔法の絨毯","川崎鷹也","ja","抒情",139,"done","","魔法的絨毯"],
+ ["太陽與地球","","zh","",null,"done"],["毒藥","","zh","",null,"done"],["飛魚","","zh","",null,"done"],["祈禱","","zh","",null,"done"],
+ ["希望你回來","TRASH","zh","搖滾",105,"done"],
+ ["交換餘生","林俊傑","zh","抒情",null,"done"],["面具","","zh","",null,"done"],["演員","薛之謙","zh","抒情",null,"done"],
+ ["嗜愛動物","麋先生","zh","搖滾",null,"done"],["長成什麼樣子算愛情","麋先生","zh","搖滾",null,"done"],
+ ["長途夜車","","zh","",null,"done"],["海上的人","滅火器","zh","搖滾",null,"done"],["好久不見","陳奕迅","zh","抒情",null,"done"],
+ ["思念","","zh","",null,"done"],["消愁","毛不易","zh","民謠",null,"done"],["一程山路","毛不易","zh","民謠",null,"done"],
+ ["盛夏","毛不易","zh","民謠",null,"done"],["借","毛不易","zh","民謠",null,"done"],["眼底星空","","zh","",null,"done"],
+ ["如果我變成回憶","Tank","zh","抒情",null,"done"],["月牙灣","F.I.R.","zh","流行",null,"done"],["眼色","","zh","",null,"done"],
+ ["大人中","盧廣仲","zh","流行",null,"done"],["美人魚","林俊傑","zh","抒情",null,"done"],["逆時光的浪","畢書盡","zh","抒情",null,"done"],
+ ["誰","","zh","",null,"done"],["下雨的晚上","","zh","",null,"done"],["讓我留在你身邊","陳奕迅","zh","抒情",null,"done"],
+ ["這是期盼的長大嗎","","zh","",null,"done","可能是 ZQS〈這是你期盼的長大嗎〉，待確認"],
+ ["離開的一路上","理想混蛋","zh","流行",null,"done"],["不是因為天氣晴朗才愛你","理想混蛋","zh","流行",null,"done"],
+ ["終於說出口","宋念宇","zh","抒情",null,"done"],["魚","","zh","",null,"done","陳綺貞、怕胖團都有同名歌，待確認"],
+ ["誰","","zh","",null,"done"],["想你的習慣","宋念宇","zh","抒情",null,"done"],["Fix You","Coldplay","en","搖滾",69,"done"],
+ ["ひまわりの約束","秦基博","ja","抒情",79,"todo"],["Planet","","ja","",null,"todo"],["さよならエレジー","菅田将暉","ja","搖滾",155,"todo"],
+ ["カブトムシ","aiko","ja","抒情",74,"todo"],["しあわせ","","ja","",null,"todo"]
 ];
+const DATA_VER = 2;
 const LANG = {ja:"日文",zh:"中文",en:"英文",ko:"韓文",other:"其他"};
 const GENRES = ["抒情","流行","搖滾","民謠","R&B","說唱","動漫/影視","其他"];
 const KEY = "songbook.v1";
@@ -171,18 +230,32 @@ const KEY = "songbook.v1";
 let songs = [];
 const uid = () => Date.now().toString(36)+Math.random().toString(36).slice(2,7);
 function blank(o){return Object.assign({id:uid(),title:"",artist:"",lang:"ja",genre:"",bpm:null,key:"",status:"todo",lyrics:"",translation:"",note:"",created:Date.now()},o)}
-function save(){try{localStorage.setItem(KEY,JSON.stringify(songs))}catch(e){toast("瀏覽器無法儲存，請記得匯出備份")}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(songs));localStorage.setItem(KEY+".ver",DATA_VER)}catch(e){toast("瀏覽器無法儲存，請記得匯出備份")}}
+const seedObj=(r,i)=>blank({title:r[0],artist:r[1],lang:r[2],genre:r[3],bpm:r[4],status:r[5],note:r[6]||"",created:i});
+function mergeSeed(){ // fill in researched info without overwriting the user's own edits
+  const used=new Set();
+  SEED.forEach(r=>{
+    const s=songs.find(x=>!used.has(x)&&(x.title===r[0]||(r[7]&&x.title===r[7])));
+    if(!s)return; used.add(s);
+    if(r[7]&&s.title===r[7]){s.title=r[0];s.lang=r[2]}
+    if(!s.artist||(s.title==="魚"&&s.artist==="陳綺貞"))s.artist=r[1];
+    if(!s.genre)s.genre=r[3];
+    if(!s.bpm&&r[4])s.bpm=r[4];
+    if(!s.note&&r[6])s.note=r[6];
+  });
+}
 async function load(){
-  try{const s=localStorage.getItem(KEY); if(s){songs=JSON.parse(s);return}}catch(e){}
+  let ver=0; try{ver=+localStorage.getItem(KEY+".ver")||0}catch(e){}
+  try{const s=localStorage.getItem(KEY); if(s){songs=JSON.parse(s).map(blank); songs.forEach(x=>{if(x.translation&&x.translation.trim()){x.lyrics=combineOld(x.lyrics,x.translation);x.translation=""}}); if(ver<DATA_VER){mergeSeed();save()} return}}catch(e){}
   try{const r=await fetch("songs.json",{cache:"no-store"}); if(r.ok){songs=(await r.json()).map(blank0);return}}catch(e){}
-  songs=SEED.map(([title,artist,lang,genre,status],i)=>blank({title,artist,lang,genre,status,created:i}));
+  songs=SEED.map(seedObj);
 }
 function blank0(o){return blank(o)}
 
 /* ---------- ui state ---------- */
 let groupBy = "lang", langFilter = "all", query = "";
 let cur = null, editing = false;
-let view = {furi:true, roma:false, trans:true};
+let view = {orig:true, furi:true, roma:false, zh:true, en:true};
 
 const $ = s => document.querySelector(s);
 const esc = s => String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -284,23 +357,37 @@ async function roma(line){
 }
 
 /* ---------- lyric rendering (shared by screen + PDF) ---------- */
+// 歌詞格式：每一句一塊，塊與塊之間空一行；塊內第一行是原文，下面接中文/英文翻譯（順序不拘）。空兩行＝分段。
+const KANA=/[぀-ヿ]/, HAN=/[一-鿿㐀-䶿]/, LATIN=/[A-Za-z]/;
+function lineLang(t){if(KANA.test(t))return"ja";if(HAN.test(t))return"zh";if(LATIN.test(t))return"en";return"x"}
+function parseLyrics(text){
+  const lines=(text||"").replace(/\r/g,"").split("\n");const out=[];let cur=null,blank=0;
+  for(const raw of lines){const t=raw.trim();
+    if(!t){blank++;if(cur){out.push(cur);cur=null}continue}
+    if(!cur){cur={orig:t,zh:[],en:[],sec:out.length>0&&blank>=2};blank=0;continue}
+    blank=0;const l=lineLang(t);(l==="en"?cur.en:cur.zh).push(t);
+  }
+  if(cur)out.push(cur);return out;
+}
+function langsIn(s){const b=parseLyrics(s.lyrics);return{zh:b.some(x=>x.zh.length),en:b.some(x=>x.en.length)}}
 async function lyricBlocks(s,opt){
-  const o=(s.lyrics||"").replace(/\r/g,"").split("\n");
-  const tr=(s.translation||"").replace(/\r/g,"").split("\n");
-  while(o.length&&!o[o.length-1].trim())o.pop();
-  const ja=s.lang==="ja", showTr=opt.trans&&s.lang!=="zh"&&s.translation.trim();
-  const blocks=[];
-  for(let i=0;i<o.length;i++){
-    const line=o[i];
-    if(!line.trim()&&!(showTr&&(tr[i]||"").trim())){blocks.push('<div class="gap"></div>');continue}
-    let oh=esc(line);
-    if(ja&&opt.furi)oh=await furi(line);
-    let h=`<div class="ln ${ja?"ja":""} ${ja&&opt.furi?"furi":""}"><div class="o">${oh||"&nbsp;"}</div>`;
-    if(ja&&opt.roma)h+=`<div class="r">${esc(await roma(line))}</div>`;
-    if(showTr&&(tr[i]||"").trim())h+=`<div class="tr">${esc(tr[i])}</div>`;
-    blocks.push(h+"</div>");
+  const ja=s.lang==="ja",blocks=[];let n=0;
+  for(const b of parseLyrics(s.lyrics)){
+    n++; if(b.sec)blocks.push('<div class="sec"></div>');
+    let body="";
+    if(opt.orig){let oh=esc(b.orig);if(ja&&opt.furi)oh=await furi(b.orig);body+=`<div class="o${ja&&opt.furi?" fu":""}">${oh}</div>`}
+    if(ja&&opt.roma)body+=`<div class="r">${esc(await roma(b.orig))}</div>`;
+    if(opt.zh)b.zh.forEach(t=>body+=`<div class="zh">${esc(t)}</div>`);
+    if(opt.en)b.en.forEach(t=>body+=`<div class="en">${esc(t)}</div>`);
+    if(!body)continue;
+    blocks.push(`<div class="ln"><span class="no">${n}</span><div class="body">${body}</div></div>`);
   }
   return blocks;
+}
+function combineOld(lyr,tr){ // migrate old two-box format
+  const o=(lyr||"").replace(/\r/g,"").split("\n"),t=(tr||"").replace(/\r/g,"").split("\n"),out=[];
+  o.forEach((l,i)=>{if(!l.trim()){out.push("");return}out.push(l+((t[i]||"").trim()?"\n"+t[i].trim():"")+"\n")});
+  return out.join("\n").replace(/\n{4,}/g,"\n\n\n").trim();
 }
 
 /* ---------- detail ---------- */
@@ -311,7 +398,7 @@ function searchLinks(s){
   else a.push(`<a href="https://www.google.com/search?q=${q}+歌詞" target="_blank" rel="noopener">搜尋歌詞</a>`);
   return `<div class="links">${a.join(" · ")}</div>`;
 }
-function openSong(id){cur=songs.find(s=>s.id===id);if(!cur)return;editing=!cur.lyrics;view={furi:true,roma:false,trans:true};
+function openSong(id){cur=songs.find(s=>s.id===id);if(!cur)return;editing=!cur.lyrics;view={orig:true,furi:true,roma:false,zh:true,en:true};
   $("#detail").classList.add("open");$("#detail").setAttribute("aria-hidden","false");document.body.style.overflow="hidden";$("#detail").scrollTop=0;renderDetail()}
 function closeSong(){$("#detail").classList.remove("open");$("#detail").setAttribute("aria-hidden","true");document.body.style.overflow="";cur=null;renderHome()}
 
@@ -335,25 +422,23 @@ async function renderDetail(){
         <label>Key / 調<input id="e_key" value="${esc(s.key)}" placeholder="例：C、降 B"></label>
       </div>
       <label>備註<input id="e_note" value="${esc(s.note)}" placeholder="例：副歌換氣點、要降 Key"></label>
-      <div class="tx">
-        <label>原文歌詞（一行一句，空行＝分段）<textarea id="e_lyr">${esc(s.lyrics)}</textarea></label>
-        <label id="trWrap" ${s.lang==="zh"?"hidden":""}>中文翻譯（和左邊逐行對齊）<textarea id="e_tr">${esc(s.translation)}</textarea></label>
-      </div>
+      <label>歌詞（每句一塊：第一行原文，下面接中文／英文翻譯；塊之間空一行，空兩行＝換段落）
+        <textarea id="e_lyr" placeholder="原文第一句&#10;中文翻譯&#10;English translation（可省略）&#10;&#10;原文第二句&#10;中文翻譯">${esc(s.lyrics)}</textarea></label>
       <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn primary" id="saveBtn">儲存</button><button class="btn" id="delBtn" style="color:#b3261e">刪除這首</button></div>
     </div><datalist id="genres">${GENRES.map(g=>`<option value="${g}">`).join("")}</datalist>`;
   }
   if(s.lyrics){
-    if(s.lang==="ja"||s.lang!=="zh"){
-      h+=`<div class="toggles">`+
-        (s.lang==="ja"?`<button class="chip ${view.furi?"on":""}" data-v="furi">平假名注音</button><button class="chip ${view.roma?"on":""}" data-v="roma">羅馬拼音</button>`:"")+
-        (s.lang!=="zh"?`<button class="chip ${view.trans?"on":""}" data-v="trans">中文翻譯</button>`:"")+`</div>`;
-    }
+    const L=langsIn(s),T=[["orig",LANG[s.lang]||"原文"]];
+    if(s.lang==="ja")T.push(["furi","假名注音"],["roma","羅馬拼音"]);
+    if(L.zh&&s.lang!=="zh")T.push(["zh","中文"]);
+    if(L.en&&s.lang!=="en")T.push(["en","英文"]);
+    if(T.length>1)h+=`<div class="toggles">${T.map(([k,l])=>`<button class="chip ${view[k]?"on":""}" data-v="${k}">${l}</button>`).join("")}</div>`;
     h+=`<div class="lyrics" id="lyr"><div class="empty">排版中…</div></div>`;
   } else if(!editing){
     h+=`<div class="note">還沒有歌詞。點右上「編輯」貼上歌詞（和翻譯），日文會自動加上假名注音。</div>`;
   }
   $("#dbody").innerHTML=h;
-  if(editing){$("#e_lang").onchange=e=>{$("#trWrap").hidden=e.target.value==="zh"};$("#saveBtn").onclick=saveEdit;$("#delBtn").onclick=delSong}
+  if(editing){$("#saveBtn").onclick=saveEdit;$("#delBtn").onclick=delSong}
   if(s.lyrics){
     try{const b=await lyricBlocks(s,view); if(cur===s)$("#lyr").innerHTML=b.join("")}
     catch(e){if(cur===s)$("#lyr").innerHTML=(await lyricBlocks(s,{...view,furi:false,roma:false})).join("")}
@@ -364,7 +449,7 @@ function saveEdit(){
   const t=v("e_title").trim(); if(!t){toast("歌名不能空白");return}
   Object.assign(s,{title:t,artist:v("e_artist").trim(),lang:v("e_lang"),genre:v("e_genre").trim(),
     bpm:v("e_bpm")?Math.round(+v("e_bpm")):null,key:v("e_key").trim(),note:v("e_note").trim(),
-    lyrics:v("e_lyr"),translation:$("#e_tr")?v("e_tr"):s.translation});
+    lyrics:v("e_lyr"),translation:""});
   save();editing=false;renderDetail();toast("已儲存");
 }
 let delArm=0;
@@ -388,14 +473,14 @@ async function exportPDF(list,opt,filename){
     const H=1123;
     for(const s of list){
       const meta=[s.artist,LANG[s.lang],s.bpm?s.bpm+" BPM":"",s.key?"Key "+s.key:""].filter(Boolean).join(" · ");
-      const blocks=await lyricBlocks(s,{furi:opt.furi,roma:opt.roma,trans:opt.trans});
+      const blocks=await lyricBlocks(s,opt);
       const newPage=(cont)=>{const p=document.createElement("div");p.className="pg";
         p.innerHTML=`<div class="ph ${cont?"cont":""}"><div class="pt">${esc(s.title)}${cont?"（續）":""}</div>${cont?"":`<div class="pm">${esc(meta)}</div>`}</div>`;
         stage.appendChild(p);pages.push(p);return p};
       let p=newPage(false);
       for(const b of blocks){
         const w=document.createElement("div");w.innerHTML=b;const el=w.firstElementChild;p.appendChild(el);
-        if(p.scrollHeight>H){p.removeChild(el);if(el.className==="gap")continue;p=newPage(true);p.appendChild(el)}
+        if(p.scrollHeight>H){p.removeChild(el);if(el.className==="sec")continue;p=newPage(true);p.appendChild(el)}
       }
     }
     await new Promise(r=>setTimeout(r,250));await document.fonts.ready;
@@ -414,20 +499,38 @@ document.addEventListener("click",e=>{
   const c=e.target.closest(".song"); if(c){openSong(c.dataset.id);return}
   const g=e.target.closest("[data-g]"); if(g){groupBy=g.dataset.g;renderHome();return}
   const l=e.target.closest("[data-l]"); if(l){langFilter=l.dataset.l;renderHome();return}
-  const v=e.target.closest("[data-v]"); if(v&&cur){view[v.dataset.v]=!view[v.dataset.v];renderDetail();return}
+  const v=e.target.closest("#dbody [data-v]"); if(v&&cur){view[v.dataset.v]=!view[v.dataset.v];renderDetail();return}
 });
 $("#q").addEventListener("input",e=>{query=e.target.value;renderHome()});
 $("#back").onclick=closeSong;
 $("#editBtn").onclick=()=>{if(editing){saveEdit()}else{editing=true;renderDetail()}};
 $("#statusBtn").onclick=()=>{cur.status=cur.status==="done"?"todo":"done";save();renderDetail();toast(cur.status==="done"?"已移到「練過的歌」":"已移到「待練」")};
 $("#pdfOne").onclick=()=>exportPDF([cur],view,`${cur.title}.pdf`);
-$("#pdfAll").onclick=()=>exportPDF(filtered(),{furi:true,roma:false,trans:true},`歌單_${new Date().toISOString().slice(0,10)}.pdf`);
+$("#pdfAll").onclick=()=>exportPDF(filtered(),{orig:true,furi:true,roma:false,zh:true,en:true},`歌單_${new Date().toISOString().slice(0,10)}.pdf`);
 $("#addForm").addEventListener("submit",e=>{e.preventDefault();const t=$("#addTitle").value.trim();if(!t)return;
   songs.push(blank({title:t,lang:$("#addLang").value,status:"todo"}));save();$("#addTitle").value="";renderHome();toast("已加入待練：「"+t+"」")});
 $("#exp").onclick=()=>{const b=new Blob([JSON.stringify(songs,null,1)],{type:"application/json"});const a=document.createElement("a");
   a.href=URL.createObjectURL(b);a.download=`songs_${new Date().toISOString().slice(0,10)}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),2000)};
 $("#imp").onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const d=JSON.parse(await f.text());if(!Array.isArray(d))throw 0;songs=d.map(blank);save();renderHome();toast("已匯入 "+songs.length+" 首")}catch(_){toast("檔案格式不對")}e.target.value=""};
 addEventListener("keydown",e=>{if(e.key==="Escape"&&cur)closeSong()});
+
+/* ---------- display settings ---------- */
+const UIKEY="songbook.ui";
+let ui={theme:"system",font:"sans",width:"normal"};
+try{Object.assign(ui,JSON.parse(localStorage.getItem(UIKEY)||"{}"))}catch(e){}
+const mq=matchMedia("(prefers-color-scheme: dark)");
+function applyUI(){
+  const r=document.documentElement;
+  r.dataset.theme=ui.theme==="system"?(mq.matches?"dark":"light"):ui.theme;
+  if(ui.font==="sans")delete r.dataset.font;else r.dataset.font=ui.font;
+  if(ui.width==="normal")delete r.dataset.width;else r.dataset.width=ui.width;
+  document.querySelectorAll("#settings .segbar").forEach(b=>b.querySelectorAll("button").forEach(x=>x.classList.toggle("on",x.dataset.v===ui[b.dataset.set])));
+}
+mq.addEventListener?.("change",applyUI);
+$("#settings").addEventListener("click",e=>{const b=e.target.closest(".segbar button");if(!b)return;ui[b.parentElement.dataset.set]=b.dataset.v;try{localStorage.setItem(UIKEY,JSON.stringify(ui))}catch(_){}applyUI()});
+$("#gearBtn").onclick=e=>{e.stopPropagation();$("#settings").classList.toggle("open")};
+document.addEventListener("click",e=>{if(!e.target.closest("#settings,#gearBtn"))$("#settings").classList.remove("open")});
+applyUI();
 
 load().then(renderHome);
 </script>
