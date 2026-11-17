@@ -209,7 +209,7 @@ footer{font-size:13px;color:var(--muted);display:flex;flex-wrap:wrap;gap:8px;ali
   </section>
 
   <footer>
-    <span>資料存在這台裝置的瀏覽器裡。</span>
+    <span>資料自動與雲端同步（手機／電腦互通）。</span>
     <button class="btn small" id="exp">備份（匯出 JSON）</button>
     <label class="btn small">還原（匯入 JSON）<input type="file" id="imp" accept=".json,application/json" hidden></label>
   </footer>
@@ -230,8 +230,8 @@ footer{font-size:13px;color:var(--muted);display:flex;flex-wrap:wrap;gap:8px;ali
   <div class="grp"><h3>主題</h3><div class="segbar" data-set="theme"><button data-v="system">跟系統</button><button data-v="light">淺色</button><button data-v="dark">深色</button></div></div>
   <div class="grp"><h3>字體</h3><div class="segbar" data-set="font"><button data-v="sans">黑體</button><button data-v="serif">宋體</button><button data-v="kai">楷體</button><button data-v="system">系統</button></div></div>
   <div class="grp"><h3>版面寬度</h3><div class="segbar" data-set="width"><button data-v="normal">標準</button><button data-v="wide">寬</button><button data-v="full">滿版</button></div></div>
-  <div class="grp"><h3>雲端同步（跨裝置＋排程）</h3><input id="ghToken" type="password" placeholder="貼上 GitHub Token（選填）" style="width:100%;padding:7px 9px;border:1px solid var(--line);border-radius:8px;background:var(--field);font-size:12px;margin-bottom:6px"><div style="display:flex;gap:6px"><button type="button" class="btn small" id="syncNowBtn" style="flex:1">立即同步雲端</button><button type="button" class="btn small" id="autoFetchSetBtn" style="flex:1">抓取缺漏資料</button></div></div>
-  <div class="hint">只會記在這台裝置的瀏覽器。新歌加入待練時會自動聯網補齊歌手、BPM、Key 與雙語歌詞；填寫 Token 可跨手機電腦自動同步並觸發 GitHub 排程。</div>
+  <div class="grp"><h3>雲端同步與自動抓資料</h3><div style="display:flex;gap:6px"><button type="button" class="btn small" id="syncNowBtn" style="flex:1">立即同步雲端</button><button type="button" class="btn small" id="autoFetchSetBtn" style="flex:1">抓取缺漏資料</button></div></div>
+  <div class="hint">歌單已接上專屬雲端同步（免填 Token），手機與電腦新增／改分區會自動互通，排程也會自動補齊缺漏的歌手、BPM、Key 與雙語歌詞。</div>
 </div>
 <div id="pdfstage"></div>
 <div class="status" id="status"></div>
@@ -1716,13 +1716,14 @@ function saveEdit(){
   const t=v("e_title").trim(); if(!t){toast("歌名不能空白");return}
   Object.assign(s,{title:t,artist:v("e_artist").trim(),lang:v("e_lang"),genre:v("e_genre").trim(),
     bpm:v("e_bpm")?Math.round(+v("e_bpm")):null,key:v("e_key").trim(),note:v("e_note").trim(),
-    lyrics:v("e_lyr"),translation:""});
-  save();editing=false;renderDetail();toast("已儲存");
+    lyrics:v("e_lyr"),translation:"",updated:Date.now()});
+  save();editing=false;renderDetail();toast("已儲存");pushToCloud({changedIds:[s.id]});
 }
 let delArm=0;
 function delSong(){
   if(Date.now()-delArm>3000){delArm=Date.now();toast("再按一次「刪除這首」確認");return}
-  songs=songs.filter(x=>x!==cur);save();closeSong();toast("已刪除");
+  const delId=cur.id;
+  songs=songs.filter(x=>x!==cur);save();closeSong();toast("已刪除");pushToCloud({deletedIds:[delId]});
 }
 
 /* ---------- PDF ---------- */
@@ -1814,21 +1815,21 @@ $("#downloadMetadataBackup").onclick=()=>{
 };
 $("#back").onclick=closeSong;
 $("#editBtn").onclick=()=>{if(editing){saveEdit()}else{editing=true;renderDetail()}};
-$("#statusSel").onchange=e=>{cur.status=e.target.value;save();renderDetail();toast("已移到「"+({done:"已練",practicing:"練習中",base:"基礎",todo:"待練"})[cur.status]+"」");pushToCloud()};
+$("#statusSel").onchange=e=>{cur.status=e.target.value;cur.updated=Date.now();save();renderDetail();toast("已移到「"+({done:"已練",practicing:"練習中",base:"基礎",todo:"待練"})[cur.status]+"」");pushToCloud({changedIds:[cur.id]})};
 $("#pdfOne").onclick=()=>exportPDF([cur],view,`${cur.title}.pdf`);
 $("#pdfAll").onclick=()=>exportPDF(filtered().filter(s=>sectionOf(s)===activeSection),{orig:true,furi:true,roma:true,zh:true,en:true},`歌單_${new Date().toISOString().slice(0,10)}.pdf`);
 $("#addForm").addEventListener("submit",e=>{e.preventDefault();const t=$("#addTitle").value.trim();if(!t)return;
-  const ns=blank({title:t,lang:$("#addLang").value,status:"todo"});
-  songs.push(ns);save();$("#addTitle").value="";renderHome();toast("已加入待練：「"+t+"」，背景自動抓取資料中…");
+  const ns=blank({title:t,lang:$("#addLang").value,status:"todo",updated:Date.now()});
+  songs.push(ns);save();$("#addTitle").value="";renderHome();toast("已加入待練：「"+t+"」，自動抓取資料並同步雲端中…");
+  pushToCloud({changedIds:[ns.id]});
   autoEnrichSong(ns,{notify:true,syncCloud:true})});
 $("#exp").onclick=()=>{const b=new Blob([JSON.stringify(songs,null,1)],{type:"application/json"});const a=document.createElement("a");
   a.href=URL.createObjectURL(b);a.download=`songs_${new Date().toISOString().slice(0,10)}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),2000)};
-$("#imp").onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const d=JSON.parse(await f.text());if(!Array.isArray(d))throw 0;songs=d.map(blank);save();renderHome();toast("已匯入 "+songs.length+" 首");pushToCloud()}catch(_){toast("檔案格式不對")}e.target.value=""};
+$("#imp").onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const d=JSON.parse(await f.text());if(!Array.isArray(d))throw 0;songs=d.map(s=>blank({...s,updated:Date.now()}));save();renderHome();toast("已匯入 "+songs.length+" 首");pushToCloud({changedIds:songs.map(s=>s.id)})}catch(_){toast("檔案格式不對")}e.target.value=""};
 addEventListener("keydown",e=>{if(e.key==="Escape"&&cur)closeSong()});
 
 /* ---------- auto-enrich missing song data & cloud sync ---------- */
-const GH_TOKEN_KEY="songbook.gh_token";
-const GH_REPO_API="https://api.github.com/repos/mickey0808449-cloud/songbook/contents/research/songs-reviewed.json";
+const CLOUD_SYNC_URL="https://script.google.com/macros/s/AKfycbxzSOeZrjNUOb9xsCT9Z1-eZYURn7Seeb4TO-uJYo0vtogiMIi2Dq8t_qUIYPPGKRb32A/exec";
 const ITUNES_API="https://itunes.apple.com/search";
 const LRCLIB_API="https://lrclib.net/api/search";
 const GTX_API="https://translate.googleapis.com/translate_a/single";
@@ -1836,6 +1837,7 @@ const JINA_YAHOO_API="https://r.jina.ai/https://search.yahoo.co.jp/search?p=";
 const MB_API="https://musicbrainz.org/ws/2/recording/";
 const AB_API="https://acousticbrainz.org/api/v1/";
 const triedAutoIds=new Set();
+const deletedSongIds=new Set();
 let autoRunning=false;
 
 function mapAutoGenre(raw){
@@ -1968,7 +1970,6 @@ async function fetchBilingualLyrics(title,artist,lang){
 }
 async function autoEnrichSong(s,opt={}){
   if(!s)return false;
-  // First check embedded RESEARCH
   const ref=researchFor(s);
   const filled=[];
   if(ref){
@@ -1998,13 +1999,14 @@ async function autoEnrichSong(s,opt={}){
   }
   triedAutoIds.add(s.id);
   if(filled.length){
+    s.updated=Date.now();
     save();renderHome();if(cur===s){editing=false;renderDetail()}
     if(opt.notify)toast(`已自動補齊「${s.title}」：${[...new Set(filled)].join("、")}`);
-    if(opt.syncCloud)pushToCloud();
+    if(opt.syncCloud)pushToCloud({changedIds:[s.id]});
     return true;
   }
   if(opt.notify)toast(`「${s.title}」目前沒有可新補齊的公開資料`);
-  if(opt.syncCloud)pushToCloud();
+  if(opt.syncCloud)pushToCloud({changedIds:[s.id]});
   return false;
 }
 async function autoEnrichAllMissing(opt={}){
@@ -2013,36 +2015,60 @@ async function autoEnrichAllMissing(opt={}){
   if(!targets.length){if(opt.notify)toast("目前所有歌曲的歌手、BPM、Key 與歌詞都已完整！");return}
   autoRunning=true;
   if(opt.notify)toast(`正在自動抓取 ${targets.length} 首缺資料的歌曲…`,0);
-  let count=0;
+  let count=0;const changedIds=[];
   try{
     for(const s of targets){
-      if(await autoEnrichSong(s,{notify:false,force:opt.force}))count++;
+      if(await autoEnrichSong(s,{notify:false,force:opt.force})){count++;changedIds.push(s.id)}
     }
     if(count>0){
       toast(`已自動補齊 ${count} 首歌的缺漏資料！`);
-      pushToCloud();
+      pushToCloud({changedIds});
     }else if(opt.notify){
       toast("已完成檢查，暫無可新增的公開資料");
     }
   }finally{autoRunning=false}
 }
+function mergeRemoteList(remote,delIds=[]){
+  let changed=false;
+  const delSet=new Set([...deletedSongIds,...delIds]);
+  if(delSet.size){
+    const before=songs.length;
+    songs=songs.filter(s=>!delSet.has(s.id));
+    if(songs.length!==before)changed=true;
+  }
+  const norm=x=>String(x||"").normalize("NFKC").trim().toLowerCase();
+  for(const rs of remote){
+    if(!rs||!rs.title||delSet.has(rs.id))continue;
+    let loc=songs.find(s=>(s.id&&rs.id&&s.id===rs.id)||(norm(s.title)===norm(rs.title)&&(!s.artist||!rs.artist||norm(s.artist)===norm(rs.artist))));
+    if(!loc){
+      const nl=blank(rs);
+      const ref=researchFor(nl);if(ref&&emptyMetadata(nl.lyrics)&&ref.lyrics)nl.lyrics=ref.lyrics;
+      songs.push(nl);changed=true;continue;
+    }
+    const rNewer=(rs.updated||0)>(loc.updated||0);
+    if(rNewer&&rs.status&&loc.status!==rs.status){loc.status=rs.status;changed=true}
+    else if(loc.status==="todo"&&["practicing","base"].includes(rs.status)){loc.status=rs.status;changed=true}
+    for(const f of ["artist","genre","bpm","key","lyrics","note"]){
+      if((emptyMetadata(loc[f])||(rNewer&&!emptyMetadata(rs[f])&&loc[f]!==rs[f]))&&!emptyMetadata(rs[f])){loc[f]=rs[f];changed=true}
+    }
+    if(rNewer)loc.updated=rs.updated;
+  }
+  return changed;
+}
 async function syncFromCloud(opt={}){
   let changed=false;
+  try{
+    const cr=await fetch(CLOUD_SYNC_URL,{cache:"no-store"});
+    if(cr.ok){
+      const cd=await cr.json();
+      if(cd&&Array.isArray(cd.songs)&&mergeRemoteList(cd.songs,cd.deletedIds||[]))changed=true;
+    }
+  }catch(_){}
   try{
     const r=await fetch("research/songs-reviewed.json",{cache:"no-store"});
     if(r.ok){
       const remote=await r.json();
-      if(Array.isArray(remote)){
-        const norm=x=>String(x||"").normalize("NFKC").trim().toLowerCase();
-        for(const rs of remote){
-          let loc=songs.find(s=>norm(s.title)===norm(rs.title)&&(!s.artist||!rs.artist||norm(s.artist)===norm(rs.artist)));
-          if(!loc){songs.push(blank(rs));changed=true;continue}
-          for(const f of ["artist","genre","bpm","key","lyrics","note"]){
-            if(emptyMetadata(loc[f])&&!emptyMetadata(rs[f])){loc[f]=rs[f];changed=true}
-          }
-          if(loc.status==="todo"&&["practicing","base"].includes(rs.status)){loc.status=rs.status;changed=true}
-        }
-      }
+      if(Array.isArray(remote)&&mergeRemoteList(remote,[]))changed=true;
     }
   }catch(_){}
   if(changed){save();renderHome();if(cur)renderDetail();if(opt.notify)toast("已從雲端同步最新歌單與補齊資料")}
@@ -2050,36 +2076,35 @@ async function syncFromCloud(opt={}){
   return changed;
 }
 async function pushToCloud(opt={}){
-  let token="";try{token=(localStorage.getItem(GH_TOKEN_KEY)||"").trim()}catch(_){}
-  if(!token){if(opt.notify)toast("請先在右上角 ⚙︎ 設定貼上 GitHub Token 才能寫回雲端");return false}
+  if(opt.deletedIds)opt.deletedIds.forEach(id=>deletedSongIds.add(id));
   try{
-    if(opt.notify)toast("正在同步至 GitHub 雲端歌單…",0);
-    const gr=await fetch(GH_REPO_API,{headers:{Authorization:`Bearer ${token}`,Accept:"application/vnd.github+json"}});
-    if(!gr.ok)throw Error(gr.status);
-    const gd=await gr.json();
-    const content=btoa(unescape(encodeURIComponent(JSON.stringify(songs,null,2)+"\n")));
-    const pr=await fetch(GH_REPO_API,{
-      method:"PUT",
-      headers:{Authorization:`Bearer ${token}`,Accept:"application/vnd.github+json","Content-Type":"application/json"},
-      body:JSON.stringify({message:"chore(sync): 網頁同步歌單與待練歌曲",content,sha:gd.sha})
+    if(opt.notify)toast("正在同步至雲端…",0);
+    const compact=songs.map(s=>{
+      const ref=researchFor(s);
+      const o={id:s.id,title:s.title,artist:s.artist||"",lang:s.lang||"ja",genre:s.genre||"",bpm:s.bpm||null,key:s.key||"",status:s.status||"todo",note:s.note||"",updated:s.updated||0};
+      if(s.lyrics&&(!ref||ref.lyrics!==s.lyrics))o.lyrics=s.lyrics;
+      return o;
+    });
+    const pr=await fetch(CLOUD_SYNC_URL,{
+      method:"POST",
+      headers:{"Content-Type":"text/plain;charset=utf-8"},
+      body:JSON.stringify({songs:compact,deletedIds:[...deletedSongIds],changedIds:opt.changedIds||[]})
     });
     if(!pr.ok)throw Error(pr.status);
-    if(opt.notify)toast("已同步至雲端，GitHub 排程將自動補齊缺漏資料！");
+    const pd=await pr.json();
+    if(pd&&Array.isArray(pd.songs)&&mergeRemoteList(pd.songs,pd.deletedIds||[])){save();renderHome();if(cur)renderDetail()}
+    if(opt.notify)toast("已同步至雲端（手機／電腦已互通）！");
     return true;
   }catch(e){
-    if(opt.notify)toast("雲端同步失敗，請檢查 GitHub Token 權限");
+    if(opt.notify)toast("雲端同步失敗，請檢查網路連線");
     return false;
   }
 }
 $("#autoFetchMissing").onclick=()=>autoEnrichAllMissing({notify:true,force:true});
-if($("#ghToken")){
-  try{$("#ghToken").value=localStorage.getItem(GH_TOKEN_KEY)||""}catch(_){}
-  $("#ghToken").onchange=e=>{try{localStorage.setItem(GH_TOKEN_KEY,e.target.value.trim());toast("已儲存雲端同步設定")}catch(_){}};
-}
-if($("#syncNowBtn"))$("#syncNowBtn").onclick=async()=>{await syncFromCloud({notify:true});await pushToCloud({notify:true})};
+if($("#syncNowBtn"))$("#syncNowBtn").onclick=async()=>{await pushToCloud({notify:true});await syncFromCloud({notify:false})};
 if($("#autoFetchSetBtn"))$("#autoFetchSetBtn").onclick=()=>autoEnrichAllMissing({notify:true,force:true});
-setTimeout(async()=>{await syncFromCloud();await autoEnrichAllMissing()},1800);
-setInterval(async()=>{await syncFromCloud();await autoEnrichAllMissing()},10*60*1000);
+setTimeout(async()=>{await syncFromCloud();await autoEnrichAllMissing()},1200);
+setInterval(async()=>{await syncFromCloud();await autoEnrichAllMissing()},2*60*1000);
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")syncFromCloud()});
 
 /* ---------- display settings ---------- */

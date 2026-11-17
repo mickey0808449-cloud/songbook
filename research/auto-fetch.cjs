@@ -1,11 +1,13 @@
 // Automatically fetch missing artist, genre, BPM, Key, and bilingual lyrics (with zh-TW translation)
-// for any song in SEED or research/songs-reviewed.json that has blank fields.
+// for any song in Google Apps Script Cloud, SEED, or research/songs-reviewed.json that has blank fields.
 const fs = require('fs');
 const path = require('path');
 const { execFileSync } = require('child_process');
 
 const here = __dirname;
 const rootDir = path.join(here, '..');
+const CLOUD_SYNC_URL = 'https://script.google.com/macros/s/AKfycbxzSOeZrjNUOb9xsCT9Z1-eZYURn7Seeb4TO-uJYo0vtogiMIi2Dq8t_qUIYPPGKRb32A/exec';
+
 const readJson = name => JSON.parse(fs.readFileSync(path.join(here, name), 'utf8'));
 const writeJson = (name, data) => fs.writeFileSync(path.join(here, name), JSON.stringify(data, null, 2) + '\n');
 
@@ -57,7 +59,6 @@ async function fetchBpmAndKey(title, artist, genre) {
   let bpmCandidates = [];
   let keyCandidates = [];
 
-  // 1. Yahoo Japan search for BPM & 原曲キー
   try {
     const q = `${cleanTitle} ${artist} BPM 原曲キー Key`;
     const yUrl = `https://search.yahoo.co.jp/search?p=${encodeURIComponent(q)}`;
@@ -94,7 +95,6 @@ async function fetchBpmAndKey(title, artist, genre) {
     }
   } catch (_) {}
 
-  // 2. MusicBrainz + AcousticBrainz fallback
   if (!bpmCandidates.length || !keyCandidates.length) {
     try {
       const mbUrl = `https://musicbrainz.org/ws/2/recording/?query=recording:${encodeURIComponent(cleanTitle)}${artist ? '%20AND%20artist:' + encodeURIComponent(artist) : ''}&limit=5&fmt=json`;
@@ -188,10 +188,9 @@ async function fetchLyricsBilingual(title, artist, lang) {
   }
   if (!plain) return '';
 
-  // Parse into paragraphs and lines
   const rawLines = plain.replace(/\r/g, '').trim().split('\n');
   const nonEmptyLines = [];
-  const structure = []; // { type: 'line', idx } or { type: 'sec' }
+  const structure = [];
   let blankCount = 0;
   for (const raw of rawLines) {
     const t = raw.trim();
@@ -244,9 +243,59 @@ async function main() {
   const audit = readJson('bpm-key-audit.json');
   const songs = readJson('songs-reviewed.json');
   const lyricsMap = readJson('lyrics.json');
-
   const norm = s => String(s || '').normalize('NFKC').trim().toLowerCase();
-  // Ensure any new song in SEED is also in songs-reviewed.json & audit
+
+  let cloudAddedOrChanged = false;
+  // 1. Pull latest songs added/updated from Google Apps Script Cloud
+  try {
+    const cRes = await fetch(CLOUD_SYNC_URL);
+    if (cRes.ok) {
+      const cData = await cRes.json();
+      if (cData && Array.isArray(cData.songs)) {
+        const delSet = new Set(cData.deletedIds || []);
+        for (const cs of cData.songs) {
+          if (!cs || !cs.title || delSet.has(cs.id)) continue;
+          const existingIdx = songs.findIndex(s => (s.id && cs.id && s.id === cs.id) || (norm(s.title) === norm(cs.title) && (!s.artist || !cs.artist || norm(s.artist) === norm(cs.artist))));
+          if (existingIdx === -1) {
+            const newIdx = songs.length;
+            songs.push({
+              id: cs.id || ('cloud-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6)),
+              title: cs.title,
+              artist: cs.artist || '',
+              lang: cs.lang || 'ja',
+              genre: cs.genre || '',
+              bpm: cs.bpm || null,
+              key: cs.key || '',
+              status: cs.status || 'todo',
+              lyrics: cs.lyrics || '',
+              translation: '',
+              note: cs.note || '',
+              created: newIdx
+            });
+            if (cs.lyrics) lyricsMap[String(newIdx)] = cs.lyrics;
+            audit.push({
+              title: cs.title,
+              artist: cs.artist || '',
+              original_bpm: cs.bpm || null,
+              output_bpm: cs.bpm || null,
+              reference_bpm: cs.bpm ? String(cs.bpm) : '待確認',
+              reference_key: cs.key || '',
+              output_key: cs.key || '',
+              assessment: '雲端新增歌曲，自動排程查核補齊。',
+              sources: []
+            });
+            cloudAddedOrChanged = true;
+          } else {
+            const s = songs[existingIdx];
+            if (cs.status && s.status !== cs.status) { s.status = cs.status; cloudAddedOrChanged = true; }
+            if (cs.note !== undefined && s.note !== cs.note) { s.note = cs.note; cloudAddedOrChanged = true; }
+          }
+        }
+      }
+    }
+  } catch (_) {}
+
+  // 2. Ensure any new song in SEED is also in songs-reviewed.json & audit
   for (const r of seedRows) {
     const [title, artist = '', lang = 'ja', genre = '', bpm = null, status = 'todo', note = ''] = r;
     const exists = songs.find(s => norm(s.title) === norm(title) && (!artist || !s.artist || norm(s.artist) === norm(artist)));
@@ -348,13 +397,34 @@ async function main() {
     if (changed) updatedCount++;
   }
 
-  if (updatedCount > 0 || songs.length !== Object.keys(lyricsMap).length) {
+  if (updatedCount > 0 || cloudAddedOrChanged || songs.length !== Object.keys(lyricsMap).length) {
     writeJson('bpm-key-audit.json', audit);
     writeJson('songs-reviewed.json', songs);
     writeJson('lyrics.json', lyricsMap);
     execFileSync(process.execPath, [path.join(here, 'update-metadata.cjs')], { stdio: 'inherit' });
+
+    // Push enriched metadata back to Google Apps Script Cloud
+    try {
+      const compactSongs = songs.map(s => ({
+        id: s.id,
+        title: s.title,
+        artist: s.artist,
+        lang: s.lang,
+        genre: s.genre,
+        bpm: s.bpm,
+        key: s.key,
+        status: s.status,
+        note: s.note || '',
+        updated: Date.now()
+      }));
+      await fetch(CLOUD_SYNC_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ songs: compactSongs, deletedIds: [], changedIds: [] })
+      });
+    } catch (_) {}
   }
-  console.log(JSON.stringify({ totalSongs: songs.length, updatedCount }));
+  console.log(JSON.stringify({ totalSongs: songs.length, updatedCount, cloudAddedOrChanged }));
 }
 
 if (require.main === module) {
