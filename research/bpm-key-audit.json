@@ -945,5 +945,18 @@
       "https://keytube.net/song/detail/54111",
       "https://planetary.music/song-analysis/vaundy/しわあわせ"
     ]
+  },
+  {
+    "title": "水平線",
+    "artist": "back number",
+    "original_bpm": null,
+    "output_bpm": 73,
+    "reference_bpm": "73 / 145",
+    "reference_key": "Bb → C",
+    "output_key": "Bb → C",
+    "assessment": "原唱和弦譜明示 Bb 大調（尾段轉 C）、慢板半速 BPM 73（倍速 145），補 BPM 73 與 Key Bb → C。",
+    "sources": [
+      "https://ja.chordwiki.org/wiki/水平線"
+    ]
   }
 ]

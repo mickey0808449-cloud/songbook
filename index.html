@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%23c2553a'/><path d='M26 16l24-5v30a7 7 0 1 1-4-6.3V20l-16 3.4V45a7 7 0 1 1-4-6.3z' fill='white'/></svg>">
-<title>我的歌單</title>
+<title>Jen的歌單</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+JP:wght@400;700&family=Noto+Serif+TC:wght@400;700&family=LXGW+WenKai+TC:wght@400;700&family=Klee+One:wght@400;600&display=swap" rel="stylesheet">
@@ -72,7 +72,10 @@ footer{font-size:13px;color:var(--muted);display:flex;flex-wrap:wrap;gap:8px;ali
 #detail{position:fixed;inset:0;background:var(--bg);overflow-y:auto;display:none;z-index:10}
 #detail.open{display:block}
 .dhead{position:sticky;top:0;background:var(--head);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);z-index:2}
-.dhead .in{max-width:var(--maxw);margin:0 auto;padding:10px 16px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.dhead .in{max-width:var(--maxw);margin:0 auto;padding:12px 16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.dhead .btn{padding:10px 18px;font-size:15px;font-weight:500}
+#back{background:var(--accent-soft);border-color:var(--accent);color:var(--ink);font-weight:700}
+:root[data-theme="dark"] #back{background:var(--accent);color:#fff}
 .dhead .sp{flex:1}
 .dtitle{font-size:26px;margin:18px 0 2px}
 .dartist{color:var(--muted);margin:0 0 12px}
@@ -142,7 +145,7 @@ footer{font-size:13px;color:var(--muted);display:flex;flex-wrap:wrap;gap:8px;ali
 <div class="wrap" id="home">
   <div class="hrow">
     <header>
-      <h1>我的歌單</h1>
+      <h1>Jen的歌單</h1>
       <p id="summary"></p>
     </header>
     <button class="gear" id="gearBtn" aria-label="顯示設定">⚙︎</button>
@@ -205,11 +208,11 @@ footer{font-size:13px;color:var(--muted);display:flex;flex-wrap:wrap;gap:8px;ali
 
 <div id="detail" aria-hidden="true">
   <div class="dhead"><div class="in">
-    <button class="btn small" id="back">← 返回</button>
+    <button class="btn" id="back">← 返回</button>
     <span class="sp"></span>
-    <button class="btn small" id="editBtn">編輯</button>
-    <select class="btn small" id="statusSel" aria-label="分區"><option value="done">已練</option><option value="practicing">練習中</option><option value="base">基礎</option><option value="todo">待練</option></select>
-    <button class="btn small primary" id="pdfOne">匯出 PDF</button>
+    <button class="btn" id="editBtn">編輯</button>
+    <select class="btn" id="statusSel" aria-label="分區"><option value="done">已練</option><option value="practicing">練習中</option><option value="base">基礎</option><option value="todo">待練</option></select>
+    <button class="btn primary" id="pdfOne">匯出 PDF</button>
   </div></div>
   <div class="wrap" id="dbody"></div>
 </div>
@@ -291,9 +294,10 @@ const SEED = [
  ["Planet","ラムジ","ja","流行",53,"todo"],
  ["さよならエレジー","菅田将暉","ja","搖滾",78,"base"],
  ["カブトムシ","aiko","ja","抒情",74,"todo"],
- ["しわあわせ","Vaundy","ja","抒情",80,"todo","","しあわせ"]
+ ["しわあわせ","Vaundy","ja","抒情",80,"todo","","しあわせ"],
+ ["水平線","back number","ja","抒情",73,"done"]
 ];
-const DATA_VER = 8;
+const DATA_VER = 9;
 const LANG = {ja:"日文",zh:"中文",en:"英文",ko:"韓文",other:"其他"};
 const GENRES = ["抒情","流行","搖滾","民謠","R&B","說唱","動漫/影視","其他"];
 const KEY = "songbook.v1";
@@ -1245,6 +1249,19 @@ const RESEARCH = [
    "https://keytube.net/song/detail/54111",
    "https://planetary.music/song-analysis/vaundy/しわあわせ"
   ]
+ },
+ {
+  "title": "水平線",
+  "artist": "back number",
+  "bpm": 73,
+  "key": "Bb → C",
+  "genre": "抒情",
+  "referenceBpm": "73 / 145",
+  "referenceKey": "Bb → C",
+  "note": "原唱和弦譜明示 Bb 大調（尾段轉 C）、慢板半速 BPM 73（倍速 145），補 BPM 73 與 Key Bb → C。",
+  "sources": [
+   "https://ja.chordwiki.org/wiki/水平線"
+  ]
  }
 ];
 /* RESEARCH_DATA_END */
@@ -1279,21 +1296,21 @@ async function load(){
 function blank0(o){return blank(o)}
 
 /* ---------- reviewed metadata: user applies blank-field updates ---------- */
+const metadataTitle=s=>String(s?.title||"").normalize("NFKC").trim().toLowerCase().replace(/\s+/g," ");
 const metadataIdentity=s=>[s.title,s.artist].map(x=>String(x||"").normalize("NFKC").trim().toLowerCase().replace(/\s+/g," ")).join("\u0000");
 const emptyMetadata=v=>v==null||(typeof v==="string"&&!v.trim());
-const researchFor=s=>RESEARCH.find(r=>metadataIdentity(r)===metadataIdentity(s));
+const researchFor=s=>RESEARCH.find(r=>metadataIdentity(r)===metadataIdentity(s))||(emptyMetadata(s.artist)?RESEARCH.find(r=>metadataTitle(r)===metadataTitle(s)):null);
 function metadataPlan(list){
   const counts=new Map();for(const s of list){const key=metadataIdentity(s);counts.set(key,(counts.get(key)||0)+1)}
   return list.flatMap((s,index)=>{
     if(counts.get(metadataIdentity(s))!==1)return [];
     const r=researchFor(s);if(!r)return [];
     const changes={};
+    if(emptyMetadata(s.artist)&&r.artist)changes.artist=r.artist;
     if((emptyMetadata(s.bpm)||Math.abs(s.bpm-r.bpm*2)<=1||Math.abs(s.bpm*2-r.bpm)<=1)&&Number.isFinite(r.bpm)&&r.bpm>0&&s.bpm!==r.bpm)changes.bpm=r.bpm;
     if(emptyMetadata(s.key)&&r.key)changes.key=r.key;
     if(emptyMetadata(s.genre)&&r.genre)changes.genre=r.genre;
-    if(emptyMetadata(s.genre)&&r.genre)changes.genre=r.genre;
-    if(emptyMetadata(s.genre)&&r.genre)changes.genre=r.genre;
-    return Object.keys(changes).length?[{index,title:s.title,artist:s.artist,changes}]:[];
+    return Object.keys(changes).length?[{index,title:s.title,artist:s.artist||r.artist,changes}]:[];
   });
 }
 function renderMetadata(){
@@ -1487,10 +1504,7 @@ function combineOld(lyr,tr){ // migrate old two-box format
 /* ---------- detail ---------- */
 function searchLinks(s){
   const q=encodeURIComponent((s.title+" "+s.artist).trim());
-  const a=[`<a href="https://music.youtube.com/search?q=${q}" target="_blank" rel="noopener">在 YT Music 找這首</a>`];
-  if(s.lang==="ja")a.push(`<a href="https://www.google.com/search?q=${encodeURIComponent("site:marumaru-x.com "+s.title)}" target="_blank" rel="noopener">在 Marumaru 找歌詞</a>`);
-  else a.push(`<a href="https://www.google.com/search?q=${q}+歌詞" target="_blank" rel="noopener">搜尋歌詞</a>`);
-  return `<div class="links">${a.join(" · ")}</div>`;
+  return `<div class="links"><a href="https://music.youtube.com/search?q=${q}" target="_blank" rel="noopener">在 YT Music 找這首</a></div>`;
 }
 function openSong(id){cur=songs.find(s=>s.id===id);if(!cur)return;editing=!cur.lyrics;view={orig:true,furi:true,roma:true,zh:true,en:true};
   $("#detail").classList.add("open");$("#detail").setAttribute("aria-hidden","false");document.body.style.overflow="hidden";$("#detail").scrollTop=0;renderDetail()}
@@ -1610,21 +1624,26 @@ $("#mergeJson").onchange=async e=>{
   try{
     const incoming=JSON.parse(await f.text());if(!Array.isArray(incoming))throw Error("format");
     const counts=new Map();for(const s of songs){const k=metadataIdentity(s);counts.set(k,(counts.get(k)||0)+1)}
-    const inMap=new Map();for(const s of incoming){const k=metadataIdentity(s);if(!inMap.has(k))inMap.set(k,s)}
-    const next=songs.map(s=>({...s}));let updated=0,added=0;
+    const inMap=new Map(),inTitleMap=new Map();
+    for(const s of incoming){
+      const k=metadataIdentity(s);if(!inMap.has(k))inMap.set(k,s);
+      const tk=metadataTitle(s);inTitleMap.set(tk,inTitleMap.has(tk)?null:s);
+    }
+    const next=songs.map(s=>({...s})),matchedSrc=new Set();let updated=0,added=0;
     for(let i=0;i<next.length;i++){
       const s=next[i],k=metadataIdentity(s);if(counts.get(k)!==1)continue;
-      const src=inMap.get(k);if(!src)continue;
+      const src=inMap.get(k)||(emptyMetadata(s.artist)?inTitleMap.get(metadataTitle(s)):null);if(!src)continue;
+      matchedSrc.add(metadataIdentity(src));
       let chg=false;
-      for(const fld of ["bpm","key","genre","lyrics","note"]){
+      for(const fld of ["artist","bpm","key","genre","lyrics","note"]){
         if((emptyMetadata(s[fld])||(fld==="bpm"&&(Math.abs(s.bpm-src.bpm*2)<=1||Math.abs(s.bpm*2-src.bpm)<=1)&&s.bpm!==src.bpm))&&!emptyMetadata(src[fld])){s[fld]=src[fld];chg=true}
       }
       if(chg)updated++;
     }
-    const existingKeys=new Set(songs.map(metadataIdentity));
+    const existingKeys=new Set(next.map(metadataIdentity));
     for(const src of incoming){
       const k=metadataIdentity(src);
-      if(!existingKeys.has(k)){next.push(blank(src));existingKeys.add(k);added++}
+      if(!existingKeys.has(k)&&!matchedSrc.has(k)){next.push(blank(src));existingKeys.add(k);added++}
     }
     if(!updated&&!added){toast("沒有新的空白欄位或歌曲需要補齊");return}
     localStorage.setItem(KEY+".metadata-backup",JSON.stringify({created:new Date().toISOString(),songs}));

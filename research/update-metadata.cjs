@@ -70,7 +70,7 @@ for(let i=0;i<audit.length;i++){
 for(const name of ['bpm-key-audit.json','songs-reviewed.json'])fs.writeFileSync(path.join(here,name),JSON.stringify(name.startsWith('bpm')?audit:songs,null,2)+'\n');
 const filledBpm=audit.filter(a=>a.original_bpm==null&&a.output_bpm!=null).length,filledKey=songs.filter(s=>s.key).length;
 const pending=audit.filter(a=>!a.output_bpm||!a.output_key);
-const text=['# 歌單 BPM／Key 核對與更新','',`基準：Jen 提供的 songs_2026-11-17.json，65 首。累計補 ${filledBpm} 首 BPM、${filledKey} 首 Key，〈500W〉風格補為「流行」，全歌單統一採用半速拍點（均不超過 100 BPM）。目前 65 首的 BPM、Key、風格已全數補齊（缺 BPM ${songs.filter(s=>!s.bpm).length} 首、缺 Key ${65-filledKey} 首）。`,'',
+const text=['# 歌單 BPM／Key 核對與更新','',`基準：Jen 提供的歌單（含〈水平線〉共 ${songs.length} 首）。累計補 ${filledBpm} 首 BPM、${filledKey} 首 Key，〈500W〉風格補為「流行」。目前 ${songs.length} 首的 BPM、Key、風格已全數補齊（缺 BPM ${songs.filter(s=>!s.bpm).length} 首、缺 Key ${songs.length-filledKey} 首）。`,'',
 '網站「補齊空白資料」功能按歌名＋歌手精確配對，補齊空欄（BPM、Key、風格）並將高於 100 的倍速 BPM 折半為半速拍點。已有的狀態、備註、歌詞都保留。更新前會在同一瀏覽器儲存備份，可下載。歌曲詳細頁可展開來源與說明。', '',
 'BPM 統一採練唱半速拍點。Key 為參考原曲調性，不是個人演唱移調。','',
 '## 逐首資料與來源','', '| 歌曲／歌手 | 原 BPM → 補充檔 | BPM候選 | 參考Key | 判讀與來源 |','|---|---|---|---|---|',...audit.map(a=>`| ${a.title}／${a.artist} | ${a.original_bpm??'空白'} → ${a.output_bpm??'空白'} | ${a.reference_bpm} | ${a.reference_key||'未確認'} | ${a.assessment} ${a.sources.map((url,i)=>`[來源${i+1}](${encodeURI(url)})`).join(' ')} |`),''];
@@ -86,19 +86,9 @@ const seedLines=audit.map((a,i)=>{
  if(oldTitles[a.title])row.push('',oldTitles[a.title]);
  return ' '+JSON.stringify(row);
 });
-html=html.replace(/const SEED = \[[\s\S]*?\];\r?\nconst DATA_VER = \d+;/,'const SEED = [\n // [title, artist, lang, genre, bpm, status, note, oldTitle]\n'+seedLines.join(',\n')+'\n];\nconst DATA_VER = 8;');
+html=html.replace(/const SEED = \[[\s\S]*?\];\r?\nconst DATA_VER = \d+;/,'const SEED = [\n // [title, artist, lang, genre, bpm, status, note, oldTitle]\n'+seedLines.join(',\n')+'\n];\nconst DATA_VER = 9;');
 const data='/* RESEARCH_DATA_START */\nconst RESEARCH = '+JSON.stringify(embedded,null,1)+';\n/* RESEARCH_DATA_END */';
 if(html.includes('/* RESEARCH_DATA_START */'))html=html.replace(/\/\* RESEARCH_DATA_START \*\/[\s\S]*?\/\* RESEARCH_DATA_END \*\//,data);
 else html=html.replace('/* ---------- storage ---------- */',data+'\n\n/* ---------- storage ---------- */');
-html=html.replace(
- 'if(emptyMetadata(s.bpm)&&Number.isFinite(r.bpm)&&r.bpm>0)changes.bpm=r.bpm;\r\n    if(emptyMetadata(s.key)&&r.key)changes.key=r.key;',
- 'if(emptyMetadata(s.bpm)&&Number.isFinite(r.bpm)&&r.bpm>0)changes.bpm=r.bpm;\r\n    if(emptyMetadata(s.key)&&r.key)changes.key=r.key;\r\n    if(emptyMetadata(s.genre)&&r.genre)changes.genre=r.genre;'
-).replace(
- '${k==="bpm"?"BPM":"Key"}',
- '${({bpm:"BPM",key:"Key",genre:"風格"})[k]||k}'
-).replace(
- '<button type="button" class="btn primary" id="applyMetadata">補齊空白資料</button>\r\n      <button type="button" class="btn" id="downloadMetadataBackup" hidden>下載更新前備份</button>',
- '<button type="button" class="btn primary" id="applyMetadata">補齊空白資料</button>\r\n      <label class="btn">從 JSON 補齊空欄（含歌詞）<input type="file" id="mergeJson" accept=".json,application/json" hidden></label>\r\n      <button type="button" class="btn" id="downloadMetadataBackup" hidden>下載更新前備份</button>'
-).replace(/view=\{orig:true,furi:true,roma:false,zh:true,en:true\}/g,'view={orig:true,furi:true,roma:true,zh:true,en:true}').replace(/view = \{orig:true, furi:true, roma:false, zh:true, en:true\}/g,'view = {orig:true, furi:true, roma:true, zh:true, en:true}').replace(/\{orig:true,furi:true,roma:false,zh:true,en:true\}/g,'{orig:true,furi:true,roma:true,zh:true,en:true}');
 fs.writeFileSync(app,html);
-console.log(JSON.stringify({filledBpm,filledKey,missingBpm:songs.filter(s=>!s.bpm).map(s=>s.title+'／'+s.artist),missingKey:65-filledKey,missingGenre:songs.filter(s=>!s.genre).length}));
+console.log(JSON.stringify({filledBpm,filledKey,missingBpm:songs.filter(s=>!s.bpm).map(s=>s.title+'／'+s.artist),missingKey:songs.length-filledKey,missingGenre:songs.filter(s=>!s.genre).length}));
