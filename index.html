@@ -175,6 +175,7 @@ footer{font-size:13px;color:var(--muted);display:flex;flex-wrap:wrap;gap:8px;ali
     <div id="metadataPreview"></div>
     <div class="metadata-actions">
       <button type="button" class="btn primary" id="applyMetadata">補齊空白資料</button>
+      <button type="button" class="btn" id="autoFetchMissing">自動抓取缺漏資料（網路）</button>
       <label class="btn">從 JSON 補齊空欄（含歌詞）<input type="file" id="mergeJson" accept=".json,application/json" hidden></label>
       <button type="button" class="btn" id="downloadMetadataBackup" hidden>下載更新前備份</button>
     </div>
@@ -229,7 +230,8 @@ footer{font-size:13px;color:var(--muted);display:flex;flex-wrap:wrap;gap:8px;ali
   <div class="grp"><h3>主題</h3><div class="segbar" data-set="theme"><button data-v="system">跟系統</button><button data-v="light">淺色</button><button data-v="dark">深色</button></div></div>
   <div class="grp"><h3>字體</h3><div class="segbar" data-set="font"><button data-v="sans">黑體</button><button data-v="serif">宋體</button><button data-v="kai">楷體</button><button data-v="system">系統</button></div></div>
   <div class="grp"><h3>版面寬度</h3><div class="segbar" data-set="width"><button data-v="normal">標準</button><button data-v="wide">寬</button><button data-v="full">滿版</button></div></div>
-  <div class="hint">只會記在這台裝置的瀏覽器。PDF 也會用這裡選的字體。</div>
+  <div class="grp"><h3>雲端同步（跨裝置＋排程）</h3><input id="ghToken" type="password" placeholder="貼上 GitHub Token（選填）" style="width:100%;padding:7px 9px;border:1px solid var(--line);border-radius:8px;background:var(--field);font-size:12px;margin-bottom:6px"><div style="display:flex;gap:6px"><button type="button" class="btn small" id="syncNowBtn" style="flex:1">立即同步雲端</button><button type="button" class="btn small" id="autoFetchSetBtn" style="flex:1">抓取缺漏資料</button></div></div>
+  <div class="hint">只會記在這台裝置的瀏覽器。新歌加入待練時會自動聯網補齊歌手、BPM、Key 與雙語歌詞；填寫 Token 可跨手機電腦自動同步並觸發 GitHub 排程。</div>
 </div>
 <div id="pdfstage"></div>
 <div class="status" id="status"></div>
@@ -1690,9 +1692,13 @@ async function renderDetail(){
     if(T.length>1)h+=`<div class="toggles">${T.map(([k,l])=>`<button class="chip ${view[k]?"on":""}" data-v="${k}">${l}</button>`).join("")}</div>`;
     h+=`<div class="lyrics" id="lyr"><div class="empty">排版中…</div></div>`;
   } else if(!editing){
-    h+=`<div class="note">還沒有歌詞。點右上「編輯」貼上歌詞（和翻譯），日文會自動加上假名注音。</div>`;
+    h+=`<div class="note">還沒有歌詞。點右上「編輯」貼上歌詞（和翻譯），或點下方按鈕自動抓取，日文會自動加上假名注音。</div>`;
+  }
+  if(!editing&&(!s.artist||!s.bpm||!s.key||!s.lyrics)){
+    h+=`<div style="margin:10px 0"><button type="button" class="btn small" id="autoFetchOne">自動抓取這首歌的缺漏資料（歌手／BPM／Key／雙語歌詞）</button></div>`;
   }
   $("#dbody").innerHTML=h;
+  if($("#autoFetchOne"))$("#autoFetchOne").onclick=()=>autoEnrichSong(s,{notify:true,force:true,syncCloud:true});
   if(editing){$("#saveBtn").onclick=saveEdit;$("#delBtn").onclick=delSong;
     let taps=[];const inp=$("#e_bpm"),hint=$("#tapHint");
     $("#tapBtn").onclick=e=>{const now=performance.now();if(taps.length&&now-taps[taps.length-1]>2500)taps=[];taps.push(now);if(taps.length>9)taps.shift();
@@ -1808,15 +1814,273 @@ $("#downloadMetadataBackup").onclick=()=>{
 };
 $("#back").onclick=closeSong;
 $("#editBtn").onclick=()=>{if(editing){saveEdit()}else{editing=true;renderDetail()}};
-$("#statusSel").onchange=e=>{cur.status=e.target.value;save();renderDetail();toast("已移到「"+({done:"已練",practicing:"練習中",base:"基礎",todo:"待練"})[cur.status]+"」")};
+$("#statusSel").onchange=e=>{cur.status=e.target.value;save();renderDetail();toast("已移到「"+({done:"已練",practicing:"練習中",base:"基礎",todo:"待練"})[cur.status]+"」");pushToCloud()};
 $("#pdfOne").onclick=()=>exportPDF([cur],view,`${cur.title}.pdf`);
 $("#pdfAll").onclick=()=>exportPDF(filtered().filter(s=>sectionOf(s)===activeSection),{orig:true,furi:true,roma:true,zh:true,en:true},`歌單_${new Date().toISOString().slice(0,10)}.pdf`);
 $("#addForm").addEventListener("submit",e=>{e.preventDefault();const t=$("#addTitle").value.trim();if(!t)return;
-  songs.push(blank({title:t,lang:$("#addLang").value,status:"todo"}));save();$("#addTitle").value="";renderHome();toast("已加入待練：「"+t+"」")});
+  const ns=blank({title:t,lang:$("#addLang").value,status:"todo"});
+  songs.push(ns);save();$("#addTitle").value="";renderHome();toast("已加入待練：「"+t+"」，背景自動抓取資料中…");
+  autoEnrichSong(ns,{notify:true,syncCloud:true})});
 $("#exp").onclick=()=>{const b=new Blob([JSON.stringify(songs,null,1)],{type:"application/json"});const a=document.createElement("a");
   a.href=URL.createObjectURL(b);a.download=`songs_${new Date().toISOString().slice(0,10)}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),2000)};
-$("#imp").onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const d=JSON.parse(await f.text());if(!Array.isArray(d))throw 0;songs=d.map(blank);save();renderHome();toast("已匯入 "+songs.length+" 首")}catch(_){toast("檔案格式不對")}e.target.value=""};
+$("#imp").onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const d=JSON.parse(await f.text());if(!Array.isArray(d))throw 0;songs=d.map(blank);save();renderHome();toast("已匯入 "+songs.length+" 首");pushToCloud()}catch(_){toast("檔案格式不對")}e.target.value=""};
 addEventListener("keydown",e=>{if(e.key==="Escape"&&cur)closeSong()});
+
+/* ---------- auto-enrich missing song data & cloud sync ---------- */
+const GH_TOKEN_KEY="songbook.gh_token";
+const GH_REPO_API="https://api.github.com/repos/mickey0808449-cloud/songbook/contents/research/songs-reviewed.json";
+const ITUNES_API="https://itunes.apple.com/search";
+const LRCLIB_API="https://lrclib.net/api/search";
+const GTX_API="https://translate.googleapis.com/translate_a/single";
+const JINA_YAHOO_API="https://r.jina.ai/https://search.yahoo.co.jp/search?p=";
+const MB_API="https://musicbrainz.org/ws/2/recording/";
+const AB_API="https://acousticbrainz.org/api/v1/";
+const triedAutoIds=new Set();
+let autoRunning=false;
+
+function mapAutoGenre(raw){
+  const g=String(raw||"").toLowerCase();
+  if(/rock|punk|metal|alternative|ロック|搖滾/.test(g))return"搖滾";
+  if(/folk|acoustic|singer|民謠/.test(g))return"民謠";
+  if(/r&b|soul/.test(g))return"R&B";
+  if(/hip-hop|rap|說唱|饒舌/.test(g))return"說唱";
+  if(/anime|soundtrack|アニメ|動漫|原聲/.test(g))return"動漫/影視";
+  if(/ballad|抒情/.test(g))return"抒情";
+  return"流行";
+}
+function modeVal(arr){
+  if(!arr.length)return null;
+  const m=new Map();for(const x of arr)m.set(x,(m.get(x)||0)+1);
+  return[...m.entries()].sort((a,b)=>b[1]-a[1])[0][0];
+}
+async function fetchItunesMeta(title,artist,lang){
+  const countries=lang==="ja"?["JP","TW","US"]:lang==="zh"?["TW","HK","US"]:["US","TW","JP"];
+  const norm=s=>String(s||"").normalize("NFKC").toLowerCase().trim();
+  const target=norm(title);
+  for(const c of countries){
+    try{
+      const q=artist?`${title} ${artist}`:title;
+      const r=await fetch(`${ITUNES_API}?term=${encodeURIComponent(q)}&entity=song&country=${c}&limit=8`);
+      if(!r.ok)continue;
+      const d=await r.json();if(!d.results?.length)continue;
+      const hit=d.results.find(x=>norm(x.trackName).includes(target)||target.includes(norm(x.trackName)))||d.results[0];
+      return{artist:hit.artistName||artist||"",genre:mapAutoGenre(hit.primaryGenreName)};
+    }catch(_){}
+  }
+  return{artist:artist||"",genre:""};
+}
+async function fetchBpmKeyMeta(title,artist,genre){
+  const clean=String(title||"").replace(/\s*[-(-].*$/,"").trim()||title;
+  const bpms=[],keys=[];
+  try{
+    const r=await fetch(JINA_YAHOO_API+encodeURIComponent(`${clean} ${artist} BPM 原曲キー Key`));
+    if(r.ok){
+      const txt=(await r.text()).replace(/\s+/g," ");
+      for(const m of txt.matchAll(/(?:BPM|テンポ)\s*(?:は|：|:|=|＝|約)?\s*(\d{2,3})\b|\b(\d{2,3})\s*BPM\b/gi)){
+        const n=+(m[1]||m[2]);if(n>=40&&n<=240)bpms.push(n);
+      }
+      const pats=[
+        /(?:原曲キー|キー|Key|調性|原調)\s*(?:は|：|:|=|＝|in)?\s*([A-G](?:#|b|♯|♭)?(?:m|minor|major|マイナー|メジャー)?)(?![a-zA-Z])/g,
+        /\b([A-G](?:#|b|♯|♭)?)\s*(?:メジャー|マイナー|大調|小調)/g,
+        /\bin\s+([A-G](?:#|b|♯|♭)?)\s+(?:Major|Minor)\b/g
+      ];
+      for(const p of pats)for(const m of txt.matchAll(p)){
+        let k=m[1].replace("♯","#").replace("♭","b");
+        if(/minor|マイナー|小調|m$/.test(m[0])&&!k.endsWith("m"))k+="m";
+        k=k.replace(/(?:major|minor|メジャー|マイナー)$/i,"");
+        if(/^[A-G](#|b)?m?$/.test(k))keys.push(k);
+      }
+    }
+  }catch(_){}
+  if(!bpms.length||!keys.length){
+    try{
+      const mr=await fetch(`${MB_API}?query=recording:${encodeURIComponent(clean)}${artist?"%20AND%20artist:"+encodeURIComponent(artist):""}&limit=4&fmt=json`);
+      if(mr.ok){
+        const md=await mr.json();
+        for(const rec of(md.recordings||[])){
+          const ar=await fetch(`${AB_API}${rec.id}/low-level`);
+          if(ar.ok){
+            const ab=await ar.json();
+            if(ab.rhythm?.bpm)bpms.push(Math.round(ab.rhythm.bpm));
+            if(ab.tonal?.key_key)keys.push(ab.tonal.key_key+(ab.tonal.key_scale==="minor"?"m":""));
+            break;
+          }
+        }
+      }
+    }catch(_){}
+  }
+  let bpm=modeVal(bpms);
+  if(bpm&&bpm>100&&(genre==="抒情"||genre==="民謠"||bpm>=126)&&genre!=="搖滾")bpm=Math.round(bpm/2);
+  return{bpm:bpm||null,key:modeVal(keys)||""};
+}
+async function translateLinesZhTW(lines,lang){
+  if(!lines.length)return[];
+  const sl=lang==="zh"?"zh-CN":lang==="ja"?"ja":lang==="en"?"en":"auto";
+  const out=[];
+  for(let i=0;i<lines.length;i+=25){
+    const chunk=lines.slice(i,i+25);
+    try{
+      const r=await fetch(`${GTX_API}?client=gtx&sl=${sl}&tl=zh-TW&dt=t&q=${encodeURIComponent(chunk.join("\n"))}`);
+      if(r.ok){
+        const d=await r.json();
+        const sp=(d[0]||[]).map(x=>x[0]).join("").split("\n").map(s=>s.trim());
+        for(let j=0;j<chunk.length;j++)out.push(sp[j]||"");
+        continue;
+      }
+    }catch(_){}
+    for(let j=0;j<chunk.length;j++)out.push("");
+  }
+  return out;
+}
+async function fetchBilingualLyrics(title,artist,lang){
+  const clean=String(title||"").replace(/\s*[-(-].*$/,"").trim()||title;
+  const urls=[
+    `${LRCLIB_API}?track_name=${encodeURIComponent(clean)}&artist_name=${encodeURIComponent(artist||"")}`,
+    `${LRCLIB_API}?q=${encodeURIComponent((clean+" "+(artist||"")).trim())}`,
+    `${LRCLIB_API}?q=${encodeURIComponent(clean)}`
+  ];
+  let plain="";
+  for(const u of urls){
+    try{
+      const r=await fetch(u);if(!r.ok)continue;
+      const arr=await r.json();if(!Array.isArray(arr)||!arr.length)continue;
+      const hit=arr.find(x=>x.plainLyrics&&x.plainLyrics.trim().length>40)||arr.find(x=>x.syncedLyrics&&x.syncedLyrics.trim().length>40);
+      if(hit){plain=hit.plainLyrics||hit.syncedLyrics.replace(/\[[\d:.]+\]\s*/g,"");break}
+    }catch(_){}
+  }
+  if(!plain)return"";
+  const rawLines=plain.replace(/\r/g,"").trim().split("\n");
+  const lines=[],struct=[];let blanks=0;
+  for(const raw of rawLines){
+    const t=raw.trim();if(!t){blanks++;continue}
+    if(blanks>0&&lines.length>0)struct.push({type:"sec"});
+    blanks=0;struct.push({type:"line",idx:lines.length,text:t});lines.push(t);
+  }
+  const zhLines=await translateLinesZhTW(lines,lang);
+  const blocks=[];let sec=false;
+  for(const it of struct){
+    if(it.type==="sec"){sec=true;continue}
+    const zh=zhLines[it.idx];
+    const blk=lang==="zh"?(zh||it.text):(zh&&zh!==it.text?`${it.text}\n${zh}`:it.text);
+    blocks.push((sec?"\n":"")+blk);sec=false;
+  }
+  return blocks.join("\n\n").trim();
+}
+async function autoEnrichSong(s,opt={}){
+  if(!s)return false;
+  // First check embedded RESEARCH
+  const ref=researchFor(s);
+  const filled=[];
+  if(ref){
+    if(emptyMetadata(s.artist)&&ref.artist){s.artist=ref.artist;filled.push("歌手")}
+    if(emptyMetadata(s.genre)&&ref.genre){s.genre=ref.genre;filled.push("風格")}
+    if(emptyMetadata(s.bpm)&&ref.bpm){s.bpm=ref.bpm;filled.push("BPM")}
+    if(emptyMetadata(s.key)&&ref.key){s.key=ref.key;filled.push("Key")}
+    if(emptyMetadata(s.lyrics)&&ref.lyrics){s.lyrics=ref.lyrics;filled.push("歌詞")}
+  }
+  const needArtist=emptyMetadata(s.artist),needGenre=emptyMetadata(s.genre),needBpm=emptyMetadata(s.bpm),needKey=emptyMetadata(s.key),needLyrics=emptyMetadata(s.lyrics);
+  if(needArtist||needGenre||needBpm||needKey||needLyrics){
+    if(opt.notify)toast(`正在自動抓取「${s.title}」的缺漏資料…`,0);
+    if(needArtist||needGenre){
+      const it=await fetchItunesMeta(s.title,s.artist,s.lang||"ja");
+      if(needArtist&&it.artist){s.artist=it.artist;filled.push("歌手")}
+      if(needGenre&&it.genre){s.genre=it.genre;filled.push("風格")}
+    }
+    if(needBpm||needKey){
+      const bk=await fetchBpmKeyMeta(s.title,s.artist,s.genre);
+      if(needBpm&&bk.bpm){s.bpm=bk.bpm;filled.push("BPM")}
+      if(needKey&&bk.key){s.key=bk.key;filled.push("Key")}
+    }
+    if(needLyrics){
+      const lyr=await fetchBilingualLyrics(s.title,s.artist,s.lang||"ja");
+      if(lyr){s.lyrics=lyr;filled.push("歌詞")}
+    }
+  }
+  triedAutoIds.add(s.id);
+  if(filled.length){
+    save();renderHome();if(cur===s){editing=false;renderDetail()}
+    if(opt.notify)toast(`已自動補齊「${s.title}」：${[...new Set(filled)].join("、")}`);
+    if(opt.syncCloud)pushToCloud();
+    return true;
+  }
+  if(opt.notify)toast(`「${s.title}」目前沒有可新補齊的公開資料`);
+  if(opt.syncCloud)pushToCloud();
+  return false;
+}
+async function autoEnrichAllMissing(opt={}){
+  if(autoRunning)return;
+  const targets=songs.filter(s=>(opt.force||!triedAutoIds.has(s.id))&&(emptyMetadata(s.artist)||emptyMetadata(s.genre)||emptyMetadata(s.bpm)||emptyMetadata(s.key)||emptyMetadata(s.lyrics)));
+  if(!targets.length){if(opt.notify)toast("目前所有歌曲的歌手、BPM、Key 與歌詞都已完整！");return}
+  autoRunning=true;
+  if(opt.notify)toast(`正在自動抓取 ${targets.length} 首缺資料的歌曲…`,0);
+  let count=0;
+  try{
+    for(const s of targets){
+      if(await autoEnrichSong(s,{notify:false,force:opt.force}))count++;
+    }
+    if(count>0){
+      toast(`已自動補齊 ${count} 首歌的缺漏資料！`);
+      pushToCloud();
+    }else if(opt.notify){
+      toast("已完成檢查，暫無可新增的公開資料");
+    }
+  }finally{autoRunning=false}
+}
+async function syncFromCloud(opt={}){
+  let changed=false;
+  try{
+    const r=await fetch("research/songs-reviewed.json",{cache:"no-store"});
+    if(r.ok){
+      const remote=await r.json();
+      if(Array.isArray(remote)){
+        const norm=x=>String(x||"").normalize("NFKC").trim().toLowerCase();
+        for(const rs of remote){
+          let loc=songs.find(s=>norm(s.title)===norm(rs.title)&&(!s.artist||!rs.artist||norm(s.artist)===norm(rs.artist)));
+          if(!loc){songs.push(blank(rs));changed=true;continue}
+          for(const f of ["artist","genre","bpm","key","lyrics","note"]){
+            if(emptyMetadata(loc[f])&&!emptyMetadata(rs[f])){loc[f]=rs[f];changed=true}
+          }
+          if(loc.status==="todo"&&["practicing","base"].includes(rs.status)){loc.status=rs.status;changed=true}
+        }
+      }
+    }
+  }catch(_){}
+  if(changed){save();renderHome();if(cur)renderDetail();if(opt.notify)toast("已從雲端同步最新歌單與補齊資料")}
+  else if(opt.notify)toast("目前已是最新雲端資料");
+  return changed;
+}
+async function pushToCloud(opt={}){
+  let token="";try{token=(localStorage.getItem(GH_TOKEN_KEY)||"").trim()}catch(_){}
+  if(!token){if(opt.notify)toast("請先在右上角 ⚙︎ 設定貼上 GitHub Token 才能寫回雲端");return false}
+  try{
+    if(opt.notify)toast("正在同步至 GitHub 雲端歌單…",0);
+    const gr=await fetch(GH_REPO_API,{headers:{Authorization:`Bearer ${token}`,Accept:"application/vnd.github+json"}});
+    if(!gr.ok)throw Error(gr.status);
+    const gd=await gr.json();
+    const content=btoa(unescape(encodeURIComponent(JSON.stringify(songs,null,2)+"\n")));
+    const pr=await fetch(GH_REPO_API,{
+      method:"PUT",
+      headers:{Authorization:`Bearer ${token}`,Accept:"application/vnd.github+json","Content-Type":"application/json"},
+      body:JSON.stringify({message:"chore(sync): 網頁同步歌單與待練歌曲",content,sha:gd.sha})
+    });
+    if(!pr.ok)throw Error(pr.status);
+    if(opt.notify)toast("已同步至雲端，GitHub 排程將自動補齊缺漏資料！");
+    return true;
+  }catch(e){
+    if(opt.notify)toast("雲端同步失敗，請檢查 GitHub Token 權限");
+    return false;
+  }
+}
+$("#autoFetchMissing").onclick=()=>autoEnrichAllMissing({notify:true,force:true});
+if($("#ghToken")){
+  try{$("#ghToken").value=localStorage.getItem(GH_TOKEN_KEY)||""}catch(_){}
+  $("#ghToken").onchange=e=>{try{localStorage.setItem(GH_TOKEN_KEY,e.target.value.trim());toast("已儲存雲端同步設定")}catch(_){}};
+}
+if($("#syncNowBtn"))$("#syncNowBtn").onclick=async()=>{await syncFromCloud({notify:true});await pushToCloud({notify:true})};
+if($("#autoFetchSetBtn"))$("#autoFetchSetBtn").onclick=()=>autoEnrichAllMissing({notify:true,force:true});
+setTimeout(async()=>{await syncFromCloud();await autoEnrichAllMissing()},1800);
+setInterval(async()=>{await syncFromCloud();await autoEnrichAllMissing()},10*60*1000);
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")syncFromCloud()});
 
 /* ---------- display settings ---------- */
 const UIKEY="songbook.ui";

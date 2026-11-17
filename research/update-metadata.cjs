@@ -89,7 +89,8 @@ const seedLines=audit.map((a,i)=>{
  if(oldTitles[a.title])row.push('',oldTitles[a.title]);
  return ' '+JSON.stringify(row);
 });
-html=html.replace(/const SEED = \[[\s\S]*?\];\r?\nconst DATA_VER = \d+;/,'const SEED = [\n // [title, artist, lang, genre, bpm, status, note, oldTitle]\n'+seedLines.join(',\n')+'\n];\nconst DATA_VER = 12;');
+const nextVer=Math.max(12,12+Math.max(0,songs.length-70));
+html=html.replace(/const SEED = \[[\s\S]*?\];\r?\nconst DATA_VER = \d+;/,'const SEED = [\n // [title, artist, lang, genre, bpm, status, note, oldTitle]\n'+seedLines.join(',\n')+'\n];\nconst DATA_VER = '+nextVer+';');
 const data='/* RESEARCH_DATA_START */\nconst RESEARCH = '+JSON.stringify(embedded,null,1)+';\n/* RESEARCH_DATA_END */';
 if(html.includes('/* RESEARCH_DATA_START */'))html=html.replace(/\/\* RESEARCH_DATA_START \*\/[\s\S]*?\/\* RESEARCH_DATA_END \*\//,data);
 else html=html.replace('/* ---------- storage ---------- */',data+'\n\n/* ---------- storage ---------- */');

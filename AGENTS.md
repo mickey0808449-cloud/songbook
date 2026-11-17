@@ -90,3 +90,12 @@ html2canvas 1.4.1 + jsPDF 2.5.1（cdnjs）。離螢幕產生 A4 頁面（794×11
 - 寫入前以 `songbook.v1.metadata-backup` 留存更新前完整歌單，可下載 JSON；儲存失敗不得改動記憶體歌單。不要自動套用參考值覆蓋既有資料。
 - 每首歌可展開「資料核對」查看來源與分歧；參考 Key 不代表 Jen 個人適合的演唱調。
 - 驗證：`node tests/metadata.cjs`；瀏覽器測試檔可用 `node tests/browser-fixture.cjs <輸出HTML路徑>` 產生，請使用隔離測試設定檔，勿操作真實瀏覽器資料。
+
+## 自動抓資料與排程同步
+
+- **網頁自動補齊（`autoEnrichSong` / `autoEnrichAllMissing`）**：
+  - 在「待練」分區輸入歌名加入時，前端會自動在背景聯網補齊缺漏的歌手、風格（iTunes API）、BPM 與 Key（Yahoo JP / MusicBrainz / AcousticBrainz，慢歌自動轉半速），以及完整歌詞與繁體中文逐句翻譯（LRCLIB + Google Translate GTX）。
+  - 網頁開啟時、切回分頁時，以及每 10 分鐘定時檢查是否有缺欄位的歌並自動補齊；亦可於「補齊歌曲資料」或歌曲詳細頁手動點擊「自動抓取缺漏資料」。
+- **GitHub Actions 自動排程（`.github/workflows/auto-update.yml` + `research/auto-fetch.cjs`）**：
+  - 每 6 小時（`0 */6 * * *`）、Push 更新歌單時，或手動觸發 Action 時，自動執行 `node research/auto-fetch.cjs` 掃描 `SEED` 與 `research/songs-reviewed.json` 中缺資料的歌曲，抓齊後自動重建 `index.html` 並透過測試後推回 `main`。
+  - 顯示設定（⚙︎）支援選填 GitHub Token，填寫後在手機或電腦新增／修改歌曲會自動同步至 `research/songs-reviewed.json` 並觸發排程更新。

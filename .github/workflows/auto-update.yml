@@ -1,0 +1,48 @@
+name: 自動補齊新歌資料與歌詞
+
+on:
+  schedule:
+    # 每 6 小時自動檢查一次有沒有缺歌手、BPM、Key、風格或歌詞的新歌
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - 'index.html'
+      - 'research/songs-reviewed.json'
+      - 'research/bpm-key-audit.json'
+      - 'research/lyrics.json'
+
+permissions:
+  contents: write
+
+jobs:
+  enrich-songs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 自動抓取缺漏的歌手、BPM、Key、風格與雙語歌詞
+        run: node research/auto-fetch.cjs
+
+      - name: 執行資料完整性測試
+        run: node tests/metadata.cjs
+
+      - name: 若有更新則自動 Commit 並 Push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if [ -n "$(git status --porcelain)" ]; then
+            git add index.html research/bpm-key-audit.json research/songs-reviewed.json research/lyrics.json research/核對說明.md
+            git commit -m "chore(auto): 自動補齊新歌歌手、BPM、Key 與雙語歌詞 [skip ci]"
+            git push
+          else
+            echo "所有歌曲資料皆已完整，無須更新。"
+          fi
