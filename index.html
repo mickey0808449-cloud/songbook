@@ -1423,7 +1423,7 @@ function mergeSeed(){ // fill in researched info without overwriting the user's 
     if(!s.artist||(s.title==="魚"&&s.artist==="陳綺貞"))s.artist=r[1];
     if(!s.genre)s.genre=r[3];
     if((!s.bpm||s.bpm===r[4]*2||(r[4]>100&&Math.abs(s.bpm*2-r[4])<=1))&&r[4])s.bpm=r[4];
-    if(s.status==="todo"&&r[5]!=="todo")s.status=r[5];
+    if(s.status==="todo"&&["practicing","base"].includes(r[5]))s.status=r[5];
     if(/^(可能是 ZQS|陳綺貞、怕胖團)/.test(s.note||""))s.note="";
     if(!s.note&&r[6])s.note=r[6];
     const ref=RESEARCH.find(x=>x.title===r[0]&&x.artist===r[1]);
