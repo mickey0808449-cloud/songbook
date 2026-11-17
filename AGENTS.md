@@ -30,6 +30,8 @@ Jen 上歌唱課用的個人歌單網頁。純靜態單一檔案，部署在 Git
 
 `status`：`done` 練過的歌、`practicing` 練習中、`base` 基礎、`todo` 待練。
 
+首頁以頂部橫向按鈕切換上述四個分區，預設顯示「練過的歌」，一次只顯示一個分區。「匯出目前清單 PDF」只匯出目前分區中符合搜尋與篩選的歌曲。
+
 ### SEED（預設歌單）
 每列格式：`[title, artist, lang, genre, bpm, status, note, oldTitle]`
 - `oldTitle`：舊名（錯字修正用），`mergeSeed()` 會把使用者資料中的舊名改成新名。

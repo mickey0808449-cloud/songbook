@@ -38,6 +38,8 @@ header p{margin:4px 0 0;color:var(--muted);font-size:14px}
 .seg span.lbl{font-size:13px;color:var(--muted);margin-right:2px}
 .chip{border:1px solid var(--line);background:var(--field);border-radius:999px;padding:6px 12px;font-size:13px}
 .chip.on{background:var(--accent-soft);color:var(--ink);border-color:var(--accent)}
+.section-switch{display:flex;gap:8px;overflow-x:auto;padding:12px 0 4px}
+.section-switch button{flex:0 0 auto}
 .btn{border:1px solid var(--line);background:var(--field);border-radius:10px;padding:9px 14px;font-size:14px}
 .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
 .btn.small{padding:6px 10px;font-size:13px}
@@ -139,6 +141,8 @@ footer{font-size:13px;color:var(--muted);display:flex;flex-wrap:wrap;gap:8px;ali
     <button class="gear" id="gearBtn" aria-label="顯示設定">⚙︎</button>
   </div>
 
+  <nav class="section-switch" id="sectionSwitch" aria-label="歌曲分區"></nav>
+
   <div class="toolbar">
     <input type="search" id="q" placeholder="搜尋歌名或歌手">
     <button class="btn" id="pdfAll">匯出目前清單 PDF</button>
@@ -151,17 +155,17 @@ footer{font-size:13px;color:var(--muted);display:flex;flex-wrap:wrap;gap:8px;ali
     <div id="listDone"></div>
   </section>
 
-  <section class="panel" id="secPracticing">
+  <section class="panel" id="secPracticing" hidden>
     <h2><span class="dot" style="background:var(--zh)"></span>練習中 <span class="count" id="cPracticing"></span></h2>
     <div id="listPracticing"></div>
   </section>
 
-  <section class="panel" id="secBase">
+  <section class="panel" id="secBase" hidden>
     <h2><span class="dot" style="background:var(--muted)"></span>基礎 <span class="count" id="cBase"></span></h2>
     <div id="listBase"></div>
   </section>
 
-  <section class="panel" id="secTodo">
+  <section class="panel" id="secTodo" hidden>
     <h2><span class="dot" style="background:var(--todo)"></span>待練 <span class="count" id="cTodo"></span></h2>
     <form class="addform" id="addForm">
       <input id="addTitle" placeholder="輸入想練的歌名" required>
@@ -277,6 +281,9 @@ function blank0(o){return blank(o)}
 
 /* ---------- ui state ---------- */
 let groupBy = "lang", query = "";
+let activeSection = "done";
+const SECTIONS = [["done","練過的歌","Done"],["practicing","練習中","Practicing"],["base","基礎","Base"],["todo","待練","Todo"]];
+const sectionOf = s => ["done","practicing","base"].includes(s.status)?s.status:"todo";
 const F={lang:new Set(),tempo:new Set(),genre:new Set(),artist:""};
 const tempoKey=b=>!b?"none":b<90?"slow":b<=120?"mid":"fast";
 const TEMPO={slow:"慢板 <90",mid:"中板 90–120",fast:"快板 >120",none:"未填 BPM"};
@@ -334,6 +341,11 @@ function listHTML(arr){
 function renderHome(){
   renderSegs();
   const f=filtered();
+  $("#sectionSwitch").innerHTML=SECTIONS.map(([key,label,id])=>{
+    const count=f.filter(s=>sectionOf(s)===key).length;
+    $("#sec"+id).hidden=key!==activeSection;
+    return `<button type="button" class="chip ${key===activeSection?"on":""}" data-section="${key}" aria-pressed="${key===activeSection}" aria-controls="sec${id}">${label} ${count}</button>`;
+  }).join("");
   const d=f.filter(s=>s.status==="done"), p=f.filter(s=>s.status==="practicing"), b=f.filter(s=>s.status==="base"), t=f.filter(s=>!["done","base","practicing"].includes(s.status));
   $("#listPracticing").innerHTML=listHTML(p);
   $("#cPracticing").textContent=p.length+" 首";
@@ -539,6 +551,7 @@ async function exportPDF(list,opt,filename){
 
 /* ---------- events ---------- */
 document.addEventListener("click",e=>{
+  const tab=e.target.closest("[data-section]"); if(tab){activeSection=tab.dataset.section;renderHome();return}
   const c=e.target.closest(".song"); if(c){openSong(c.dataset.id);return}
   const g=e.target.closest("[data-g]"); if(g){groupBy=g.dataset.g;renderHome();return}
   const fb=e.target.closest("[data-f]"); if(fb){const S=F[fb.dataset.f],k=fb.dataset.k;S.has(k)?S.delete(k):S.add(k);renderHome();return}
@@ -549,7 +562,7 @@ $("#back").onclick=closeSong;
 $("#editBtn").onclick=()=>{if(editing){saveEdit()}else{editing=true;renderDetail()}};
 $("#statusSel").onchange=e=>{cur.status=e.target.value;save();renderDetail();toast("已移到「"+({done:"練過的歌",practicing:"練習中",base:"基礎",todo:"待練"})[cur.status]+"」")};
 $("#pdfOne").onclick=()=>exportPDF([cur],view,`${cur.title}.pdf`);
-$("#pdfAll").onclick=()=>exportPDF(filtered(),{orig:true,furi:true,roma:false,zh:true,en:true},`歌單_${new Date().toISOString().slice(0,10)}.pdf`);
+$("#pdfAll").onclick=()=>exportPDF(filtered().filter(s=>sectionOf(s)===activeSection),{orig:true,furi:true,roma:false,zh:true,en:true},`歌單_${new Date().toISOString().slice(0,10)}.pdf`);
 $("#addForm").addEventListener("submit",e=>{e.preventDefault();const t=$("#addTitle").value.trim();if(!t)return;
   songs.push(blank({title:t,lang:$("#addLang").value,status:"todo"}));save();$("#addTitle").value="";renderHome();toast("已加入待練：「"+t+"」")});
 $("#exp").onclick=()=>{const b=new Blob([JSON.stringify(songs,null,1)],{type:"application/json"});const a=document.createElement("a");
