@@ -62,10 +62,12 @@ patch(61,{output_bpm:53,output_key:'C#m',reference_bpm:'53 / 106',reference_key:
 patch(62,{output_bpm:78,reference_bpm:'78 / 155',output_key:'Bbm',reference_key:'Bbm / Db',assessment:'原曲調性 Bbm（關係大調 Db），BPM 採半速拍點 78（倍速 155）。'},['https://ja.chordwiki.org/wiki/さよならエレジー']);
 patch(63,{reference_key:'Eb',output_key:'Eb',assessment:'原唱和弦譜明示Eb、74，補參考調性，保留原BPM。'});
 patch(64,{output_key:'F',assessment:'原專輯資料及第二站皆半速80、F，補參考調性；161為倍速，維持80。'},['https://planetary.music/song-analysis/vaundy/しわあわせ']);
+const statusOverrides={'Planet':'base','さよならエレジー':'base','しわあわせ':'practicing','シルエット':'base','Pretender':'todo','NIGHT DANCER':'todo','感電':'todo','水平線':'done'};
 for(let i=0;i<audit.length;i++){
  const a=audit[i],s=songs[i];assert.equal(a.title,s.title);assert.equal(a.artist,s.artist);
  s.bpm=a.output_bpm;s.key=a.output_key;
  if(a.output_genre)s.genre=a.output_genre;
+ if(statusOverrides[s.title])s.status=statusOverrides[s.title];
  if(lyricsMap[String(i)])s.lyrics=lyricsMap[String(i)];
 }
 for(const name of ['bpm-key-audit.json','songs-reviewed.json'])fs.writeFileSync(path.join(here,name),JSON.stringify(name.startsWith('bpm')?audit:songs,null,2)+'\n');
@@ -87,7 +89,7 @@ const seedLines=audit.map((a,i)=>{
  if(oldTitles[a.title])row.push('',oldTitles[a.title]);
  return ' '+JSON.stringify(row);
 });
-html=html.replace(/const SEED = \[[\s\S]*?\];\r?\nconst DATA_VER = \d+;/,'const SEED = [\n // [title, artist, lang, genre, bpm, status, note, oldTitle]\n'+seedLines.join(',\n')+'\n];\nconst DATA_VER = 11;');
+html=html.replace(/const SEED = \[[\s\S]*?\];\r?\nconst DATA_VER = \d+;/,'const SEED = [\n // [title, artist, lang, genre, bpm, status, note, oldTitle]\n'+seedLines.join(',\n')+'\n];\nconst DATA_VER = 12;');
 const data='/* RESEARCH_DATA_START */\nconst RESEARCH = '+JSON.stringify(embedded,null,1)+';\n/* RESEARCH_DATA_END */';
 if(html.includes('/* RESEARCH_DATA_START */'))html=html.replace(/\/\* RESEARCH_DATA_START \*\/[\s\S]*?\/\* RESEARCH_DATA_END \*\//,data);
 else html=html.replace('/* ---------- storage ---------- */',data+'\n\n/* ---------- storage ---------- */');

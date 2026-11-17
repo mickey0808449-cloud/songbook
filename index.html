@@ -299,17 +299,17 @@ const SEED = [
  ["想你的習慣","宋念宇","zh","抒情",66,"done"],
  ["Fix You","Coldplay","en","搖滾",69,"done"],
  ["ひまわりの約束","秦基博","ja","抒情",79,"todo"],
- ["Planet","ラムジ","ja","流行",53,"todo"],
+ ["Planet","ラムジ","ja","流行",53,"base"],
  ["さよならエレジー","菅田将暉","ja","搖滾",78,"base"],
  ["カブトムシ","aiko","ja","抒情",74,"todo"],
- ["しわあわせ","Vaundy","ja","抒情",80,"todo","","しあわせ"],
+ ["しわあわせ","Vaundy","ja","抒情",80,"practicing","","しあわせ"],
  ["水平線","back number","ja","抒情",73,"done"],
  ["Pretender","Official髭男dism","ja","流行",92,"todo"],
  ["NIGHT DANCER","imase","ja","流行",117,"todo"],
  ["シルエット","KANA-BOON","ja","搖滾",92,"base"],
  ["感電","米津玄師","ja","流行",103,"todo"]
 ];
-const DATA_VER = 11;
+const DATA_VER = 12;
 const LANG = {ja:"日文",zh:"中文",en:"英文",ko:"韓文",other:"其他"};
 const GENRES = ["抒情","流行","搖滾","民謠","R&B","說唱","動漫/影視","其他"];
 const KEY = "songbook.v1";
@@ -1413,15 +1413,17 @@ const seedObj=(r,i)=>{
 };
 function mergeSeed(){ // fill in researched info without overwriting the user's own edits
   const used=new Set();
-  SEED.forEach(r=>{
+  SEED.forEach((r,i)=>{
     const candidates=songs.filter(x=>!used.has(x)&&(x.title===r[0]||(r[7]&&x.title===r[7])));
     const sameArtist=x=>String(x.artist||"").normalize("NFKC").trim().toLowerCase()===r[1].normalize("NFKC").trim().toLowerCase();
-    const s=candidates.find(sameArtist)||(candidates.length===1&&(!candidates[0].artist||(r[0]==="魚"&&candidates[0].artist==="陳綺貞"))?candidates[0]:null);
-    if(!s)return; used.add(s);
+    let s=candidates.find(sameArtist)||(candidates.length===1&&(!candidates[0].artist||(r[0]==="魚"&&candidates[0].artist==="陳綺貞"))?candidates[0]:null);
+    if(!s){s=seedObj(r,i);songs.push(s);used.add(s);return}
+    used.add(s);
     if(r[7]&&s.title===r[7]){s.title=r[0];s.lang=r[2]}
     if(!s.artist||(s.title==="魚"&&s.artist==="陳綺貞"))s.artist=r[1];
     if(!s.genre)s.genre=r[3];
     if((!s.bpm||s.bpm===r[4]*2||(r[4]>100&&Math.abs(s.bpm*2-r[4])<=1))&&r[4])s.bpm=r[4];
+    if(s.status==="todo"&&r[5]!=="todo")s.status=r[5];
     if(/^(可能是 ZQS|陳綺貞、怕胖團)/.test(s.note||""))s.note="";
     if(!s.note&&r[6])s.note=r[6];
     const ref=RESEARCH.find(x=>x.title===r[0]&&x.artist===r[1]);
