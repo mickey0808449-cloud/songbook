@@ -87,11 +87,11 @@
     "title": "怪獣の花唄",
     "artist": "Vaundy",
     "original_bpm": 150,
-    "output_bpm": 150,
-    "reference_bpm": "150",
+    "output_bpm": 75,
+    "reference_bpm": "75 / 150",
     "reference_key": "D",
     "output_key": "D",
-    "assessment": "原唱和弦譜明示 D、150；補參考調性。",
+    "assessment": "原唱和弦譜明示 D 大調，BPM 採半速拍點 75（倍速 150）。",
     "sources": [
       "https://keytube.net/song/detail/24128",
       "https://bpm-database.tokyo/album/qbEYvRca",
@@ -145,11 +145,11 @@
     "title": "ビリミリオン",
     "artist": "優里",
     "original_bpm": 125,
-    "output_bpm": 125,
-    "reference_bpm": "125；局部 188",
+    "output_bpm": 63,
+    "reference_bpm": "63 / 125（局部 188）",
     "reference_key": "Bb",
     "output_key": "Bb",
-    "assessment": "和弦譜明示 Bb、主體 125；局部標示 188／3拍子，原 BPM 保留。",
+    "assessment": "和弦譜明示 Bb，BPM 採半速拍點 63（倍速 125）。",
     "sources": [
       "https://ja.chordwiki.org/wiki/ビリミリオン（優里）"
     ]
@@ -200,11 +200,11 @@
     "title": "怪獣",
     "artist": "サカナクション",
     "original_bpm": 180,
-    "output_bpm": 180,
+    "output_bpm": 90,
     "reference_bpm": "90 / 180",
     "reference_key": "G#m",
     "output_key": "G#m",
-    "assessment": "原曲調性 G#m，補參考調性；保留 BPM 180。",
+    "assessment": "原曲調性 G#m，BPM 採半速拍點 90（倍速 180）。",
     "sources": [
       "https://keytube.net/song/detail/126082",
       "https://moavl.net/voice_training/13336.html/",
@@ -230,11 +230,11 @@
     "title": "世界が終るまでは…",
     "artist": "WANDS",
     "original_bpm": 104,
-    "output_bpm": 104,
-    "reference_bpm": "104 / 106",
+    "output_bpm": 52,
+    "reference_bpm": "52 / 104",
     "reference_key": "C",
     "output_key": "C",
-    "assessment": "原唱和弦譜明示 C、104；另一來源 106，保留原 BPM。",
+    "assessment": "原唱和弦譜明示 C，BPM 採半速拍點 52（倍速 104）。",
     "sources": [
       "https://ja.chordwiki.org/wiki/世界が終るまでは…",
       "https://keytube.net/song/detail/30812"
@@ -244,11 +244,11 @@
     "title": "オレンジ",
     "artist": "SPYAIR",
     "original_bpm": 101,
-    "output_bpm": 101,
-    "reference_bpm": "100",
+    "output_bpm": 50,
+    "reference_bpm": "50 / 100",
     "reference_key": "D",
     "output_key": "D",
-    "assessment": "原 101 與兩來源 100 差 1 BPM，先保留 101。",
+    "assessment": "原曲 D 大調，BPM 採半速拍點 50（倍速 100）。",
     "sources": [
       "https://songdata.io/track/6M6ZNRplLNspFEn6Ab3mOv/-by-SPYAIR",
       "https://songbpm.com/%40spyair/orenzi-NT5wtrcer3"
@@ -277,7 +277,7 @@
     "reference_bpm": "156 / 78",
     "reference_key": "C",
     "output_key": "C",
-    "assessment": "主體調性 C 大調／Am（後段轉 D），補參考調性 C；原 BPM 76 保留。",
+    "assessment": "主體調性 C 大調／Am（後段轉 D），補參考調性 C；原半速 BPM 76 保留。",
     "sources": [
       "https://keytube.net/song/detail/7182",
       "https://bpm-database.tokyo/music/HIJ2nVUf",
@@ -288,11 +288,11 @@
     "title": "ワタリドリ",
     "artist": "[Alexandros]",
     "original_bpm": 135,
-    "output_bpm": 135,
-    "reference_bpm": "135",
+    "output_bpm": 68,
+    "reference_bpm": "68 / 135",
     "reference_key": "A",
     "output_key": "A",
-    "assessment": "原唱和弦譜明示 A 大調、BPM 135，補參考調性。",
+    "assessment": "原唱和弦譜明示 A 大調，BPM 採半速拍點 68（倍速 135）。",
     "sources": [
       "https://keytube.net/song/detail/861",
       "https://ja.chordwiki.org/wiki/ワタリドリ"
@@ -302,11 +302,11 @@
     "title": "W/X/Y",
     "artist": "Tani Yuuki",
     "original_bpm": 142,
-    "output_bpm": 142,
-    "reference_bpm": "71 / 106 / 142",
+    "output_bpm": 71,
+    "reference_bpm": "71 / 142",
     "reference_key": "D",
     "output_key": "D",
-    "assessment": "原唱和弦譜明示 D 大調，補參考調性；保留原 BPM 142。",
+    "assessment": "原唱和弦譜明示 D 大調，BPM 採半速拍點 71（倍速 142）。",
     "sources": [
       "https://keytube.net/song/detail/78426",
       "https://wikiwiki.jp/taiko-fumen/収録曲/おに/W／X／Y",
@@ -318,11 +318,11 @@
     "title": "全力少年",
     "artist": "スキマスイッチ",
     "original_bpm": 134,
-    "output_bpm": 134,
-    "reference_bpm": "134",
+    "output_bpm": 67,
+    "reference_bpm": "67 / 134",
     "reference_key": "D",
     "output_key": "D",
-    "assessment": "和弦譜及單曲資料庫相符。",
+    "assessment": "原曲 D 大調，BPM 採半速拍點 67（倍速 134）。",
     "sources": [
       "https://ja.chordwiki.org/wiki/全力少年",
       "https://bpm-database.tokyo/album/g87z9MQi"
@@ -332,11 +332,11 @@
     "title": "魔法の絨毯",
     "artist": "川崎鷹也",
     "original_bpm": 139,
-    "output_bpm": 139,
-    "reference_bpm": "74 / 139",
+    "output_bpm": 70,
+    "reference_bpm": "70–74 / 139",
     "reference_key": "Ab",
     "output_key": "Ab",
-    "assessment": "和弦譜明示 Ab；74 與另一來源139非精確倍速，保留原139。",
+    "assessment": "和弦譜明示 Ab；抒情慢板採半速拍點 70（倍速 139）。",
     "sources": [
       "https://ja.chordwiki.org/wiki/魔法の絨毯+(川崎鷹也)",
       "https://keytube.net/song/detail/27717"
@@ -366,7 +366,7 @@
     "reference_bpm": "64 / 128",
     "reference_key": "Db / Bbm",
     "output_key": "Db",
-    "assessment": "BPM 兩來源支持 64／128，補 64；原調補 Db（關係小調 Bbm）。",
+    "assessment": "BPM 兩來源支持 64／128，採半速 64；原調補 Db（關係小調 Bbm）。",
     "sources": [
       "https://songbpm.com/%40xiao-bing-zhi/du-yao-Euz3yY08E-",
       "https://chord4.com/zh-hant/tabs/33482"
@@ -376,11 +376,11 @@
     "title": "飛魚",
     "artist": "蘇打綠",
     "original_bpm": null,
-    "output_bpm": 127,
-    "reference_bpm": "127",
+    "output_bpm": 64,
+    "reference_bpm": "64 / 127",
     "reference_key": "D",
     "output_key": "D",
-    "assessment": "2005 同名專輯版；兩資料庫相符，補 127、D 大調。",
+    "assessment": "2005 同名專輯版 D 大調，BPM 採半速拍點 64（倍速 127）。",
     "sources": [
       "https://songdata.io/track/6CUuTGGSxITiFAYXQRk368/-by-sodagreen",
       "https://songbpm.com/%40sodagreen?after=fei-yu---live-uaUMYTo5YX"
@@ -394,7 +394,7 @@
     "reference_bpm": "65 / 130",
     "reference_key": "Eb",
     "output_key": "Eb",
-    "assessment": "BPM 65／130 相符，補 65；原調補 Eb。",
+    "assessment": "BPM 65／130 相符，採半速 65；原調補 Eb。",
     "sources": [
       "https://songbpm.com/%40li-gang-lin/qi-dao",
       "https://chordify.net/chords/li-gang-lin-songs/qi-dao-chords"
@@ -404,11 +404,11 @@
     "title": "希望你回來",
     "artist": "TRASH",
     "original_bpm": 105,
-    "output_bpm": 105,
-    "reference_bpm": "105",
+    "output_bpm": 53,
+    "reference_bpm": "53 / 105",
     "reference_key": "Gm",
     "output_key": "Gm",
-    "assessment": "BPM 105 與專輯資料相符；補參考調性 Gm。",
+    "assessment": "原曲 Gm 小調，BPM 採半速拍點 53（倍速 105）。",
     "sources": [
       "https://songdata.io/track/0r4jJxnrDSYBDc001AWhjX/-by-TRASH"
     ]
@@ -435,7 +435,7 @@
     "reference_bpm": "72 / 144",
     "reference_key": "G（專輯）/ F#（現場候選）",
     "output_key": "G",
-    "assessment": "專輯版採譜為 G 大調、144（練唱慢板拍點 72），補 BPM 72 與參考調性 G。",
+    "assessment": "專輯版採譜為 G 大調、144（半速拍點 72），補 BPM 72 與參考調性 G。",
     "sources": [
       "https://getsongbpm.com/album/yousuowei/2XlmA",
       "https://chordify.net/chords/kkbox-presents-music-on-the-road-vol2-kkbox",
@@ -447,11 +447,11 @@
     "title": "演員",
     "artist": "薛之謙",
     "original_bpm": 92,
-    "output_bpm": 92,
-    "reference_bpm": "45–46 / 90–92",
+    "output_bpm": 46,
+    "reference_bpm": "46 / 92",
     "reference_key": "B",
     "output_key": "B",
-    "assessment": "原曲調性為 B 大調，補參考調性；BPM 92 保留。",
+    "assessment": "原曲調性為 B 大調，譜面半速 46（倍速 92）。",
     "sources": [
       "https://chord4.com/zh-hant/tabs/35618"
     ]
@@ -464,7 +464,7 @@
     "reference_bpm": "82 / 164",
     "reference_key": "F",
     "output_key": "F",
-    "assessment": "2020專輯資料82，官方MV對應分析82.05，補82；先前81–83視為片源／分析差異。",
+    "assessment": "2020專輯資料82（倍速164），補半速82與F大調。",
     "sources": [
       "https://kanpu8.com/chords/loveholic/",
       "https://www.otokage.com/song/1960434.html",
@@ -478,11 +478,11 @@
     "title": "長成什麼樣子算愛情",
     "artist": "麋先生",
     "original_bpm": null,
-    "output_bpm": 134,
-    "reference_bpm": "134",
+    "output_bpm": 67,
+    "reference_bpm": "67 / 134",
     "reference_key": "G",
     "output_key": "G",
-    "assessment": "兩資料庫對應錄音室版本，補 134、G。",
+    "assessment": "錄音室版本 G 大調，BPM 採半速拍點 67（倍速 134）。",
     "sources": [
       "https://songdata.io/track/1J6M0Lw3Gyam7qL4ndlXbF/-by-Mixer",
       "https://tunebat.com/Info/-/09hpKZJxqSY7x2eDZKIuvI"
@@ -492,11 +492,11 @@
     "title": "長途夜車",
     "artist": "滅火器",
     "original_bpm": null,
-    "output_bpm": 103,
-    "reference_bpm": "103",
+    "output_bpm": 52,
+    "reference_bpm": "52 / 103",
     "reference_key": "F",
     "output_key": "F",
-    "assessment": "專輯版本及 BPM 表皆為 103、原調 F 大調，補 BPM 103 與 Key F。",
+    "assessment": "專輯版本原調 F 大調，BPM 採半速拍點 52（倍速 103）。",
     "sources": [
       "https://songdata.io/track/3aH4zwCqiIEH08zbJO4jlH/-by-Fire-EX",
       "https://bpm-database.tokyo/music/dcvWhP3g"
@@ -550,11 +550,11 @@
     "title": "消愁",
     "artist": "毛不易",
     "original_bpm": null,
-    "output_bpm": 112,
-    "reference_bpm": "112 / 56（MV分析約111）",
+    "output_bpm": 56,
+    "reference_bpm": "56 / 112",
     "reference_key": "Fm",
     "output_key": "Fm",
-    "assessment": "2018《平凡的一天》4:21專輯及伴奏版皆112、Fm；補112與Fm。",
+    "assessment": "2018《平凡的一天》專輯 Fm 小調，BPM 採半速拍點 56（倍速 112）。",
     "sources": [
       "https://chordify.net/chords/mao-bu-yi-songs/xiao-chou-chords",
       "https://www.midishow.com/en/midi/75224.html",
@@ -617,7 +617,7 @@
     "reference_bpm": "79–81 / 159.6",
     "reference_key": "Bb",
     "output_key": "Bb",
-    "assessment": "兩份編譜與原專輯調性資料皆支持 Bb（含轉調），速度約 80（倍速 160），補 BPM 80 與 Key Bb。",
+    "assessment": "兩份編譜與原專輯調性資料皆支持 Bb（含轉調），半速約 80（倍速 160），補 BPM 80 與 Key Bb。",
     "sources": [
       "https://getsongbpm.com/song/yandixingkong/k5mQQY",
       "https://kanpu8.com/chords2/the-starry-sky-in-your-eyes/",
@@ -633,7 +633,7 @@
     "reference_bpm": "66 / 132",
     "reference_key": "D",
     "output_key": "D",
-    "assessment": "主流資料庫 132（練唱慢板半速 66）、D 大調一致，補 BPM 66 與 Key D。",
+    "assessment": "主流資料庫 132（慢板半速 66）、D 大調一致，補 BPM 66 與 Key D。",
     "sources": [
       "https://songdata.io/track/ja/4ZihPLUkdHJZ9XVhxMeFTG/-by-TANK-",
       "https://chordify.net/chords/tank-ru-guo-wo-bian-cheng-hui-yi-if-i-was-the-memory-official-mv-hua-yan-guo-ji"
@@ -643,11 +643,11 @@
     "title": "月牙灣",
     "artist": "F.I.R.",
     "original_bpm": null,
-    "output_bpm": 174,
-    "reference_bpm": "174 / 87",
+    "output_bpm": 87,
+    "reference_bpm": "87 / 174",
     "reference_key": "D",
     "output_key": "D",
-    "assessment": "原專輯兩資料庫 174（半速 87）、原調 D 大調，補 BPM 174 與 Key D。",
+    "assessment": "原專輯資料庫 174，採半速拍點 87、原調 D 大調，補 BPM 87 與 Key D。",
     "sources": [
       "https://tunebat.com/Info/-F-I-R-/1b5IRT3iraxjHOsKZx93sW",
       "https://getsongbpm.com/song/yueya/KrNkVG"
@@ -671,11 +671,11 @@
     "title": "大人中",
     "artist": "盧廣仲",
     "original_bpm": null,
-    "output_bpm": 105,
-    "reference_bpm": "105（2014專輯）",
+    "output_bpm": 53,
+    "reference_bpm": "53 / 105",
     "reference_key": "Eb",
     "output_key": "Eb",
-    "assessment": "2014 專輯版 BPM 105、編譜原調 Eb 大調，補 BPM 105 與 Key Eb。",
+    "assessment": "2014 專輯版編譜原調 Eb 大調，BPM 採半速拍點 53（倍速 105）。",
     "sources": [
       "https://songbpm.com/%40crowd-lu/da-ren-zhong---da-ren-zhong-yan-chang-hui-live",
       "https://tunebat.com/Info/-LIVE-Crowd-Lu/4xRr9fa3RB2FsTUCfLSRme",
@@ -748,7 +748,7 @@
     "reference_bpm": "85 / 170",
     "reference_key": "Db → D",
     "output_key": "Db → D",
-    "assessment": "原曲慢板 BPM 85（倍速 170）、起始 Db 後轉 D，補 BPM 85 與 Key Db → D。",
+    "assessment": "原曲慢板半速 BPM 85（倍速 170）、起始 Db 後轉 D，補 BPM 85 與 Key Db → D。",
     "sources": [
       "https://kanpu8.com/chords/stay-with-you/",
       "https://www.youtube.com/watch?v=o-ZtUeaCclo",
@@ -773,11 +773,11 @@
     "title": "離開的一路上",
     "artist": "理想混蛋",
     "original_bpm": null,
-    "output_bpm": 126,
-    "reference_bpm": "126",
+    "output_bpm": 63,
+    "reference_bpm": "63 / 126",
     "reference_key": "D",
     "output_key": "D",
-    "assessment": "兩資料庫 BPM 126 一致，原曲吉他譜為 D 大調，補 BPM 126 與 Key D。",
+    "assessment": "資料庫 126（慢板半速 63），原曲吉他譜為 D 大調，補半速 BPM 63 與 Key D。",
     "sources": [
       "https://songdata.io/track/1NoDTQhJsrd5rnpb6PQthK/-by-",
       "https://www.snaplyrics.com/song/-1NoDTQhJ-bpm-key",
@@ -792,7 +792,7 @@
     "reference_bpm": "68 / 136",
     "reference_key": "Ab",
     "output_key": "Ab",
-    "assessment": "譜面 68（倍速 136）、原調 Ab 大調，補 BPM 68 與 Key Ab。",
+    "assessment": "譜面半速 68（倍速 136）、原調 Ab 大調，補 BPM 68 與 Key Ab。",
     "sources": [
       "https://songbpm.com/%40li-xiang-hun-dan/bu-shi-yin-wei-tian-qi-qing-lang-cai-ai-ni",
       "https://chord4.com/zh-hant/tabs/35618"
@@ -868,7 +868,7 @@
     "reference_bpm": "69 / 138",
     "reference_key": "Eb",
     "output_key": "Eb",
-    "assessment": "原曲 Eb 大調、BPM 69（倍速 138），補參考調性 Eb。",
+    "assessment": "原曲 Eb 大調、半速 BPM 69（倍速 138），補參考調性 Eb。",
     "sources": [
       "https://earchords.com/fix-you-chords/"
     ]
@@ -891,11 +891,11 @@
     "title": "Planet",
     "artist": "ラムジ",
     "original_bpm": null,
-    "output_bpm": 106,
-    "reference_bpm": "約106（編譜107）",
+    "output_bpm": 53,
+    "reference_bpm": "53 / 106",
     "reference_key": "C#m / E",
     "output_key": "C#m",
-    "assessment": "2006單曲表106，官方Lyric Video對應分析105.8，補 BPM 106 與參考調性 C#m（關係大調 E）。",
+    "assessment": "2006單曲表 106（半速拍點 53），補半速 BPM 53 與參考調性 C#m（關係大調 E）。",
     "sources": [
       "https://bpm-database.tokyo/music/i8gsvuZJ",
       "https://ja.chordwiki.org/wiki/PLANET+(ラムジ)",
@@ -906,11 +906,11 @@
     "title": "さよならエレジー",
     "artist": "菅田将暉",
     "original_bpm": 155,
-    "output_bpm": 155,
-    "reference_bpm": "155",
+    "output_bpm": 78,
+    "reference_bpm": "78 / 155",
     "reference_key": "Bbm / Db",
     "output_key": "Bbm",
-    "assessment": "原曲調性 Bbm（關係大調 Db）、BPM 155，補參考調性 Bbm。",
+    "assessment": "原曲調性 Bbm（關係大調 Db），BPM 採半速拍點 78（倍速 155）。",
     "sources": [
       "https://keytube.net/song/detail/152",
       "https://bpm-database.tokyo/music/TDUhuoDO",
@@ -938,7 +938,7 @@
     "reference_bpm": "80 / 161",
     "reference_key": "F",
     "output_key": "F",
-    "assessment": "原專輯資料及第二站皆80、F，補參考調性；161近似倍速，原80維持。",
+    "assessment": "原專輯資料及第二站皆半速80、F，補參考調性；161為倍速，維持80。",
     "sources": [
       "https://tunebat.com/Info/-Vaundy/4GvJskA0Jn4NorP2YWxuaf",
       "https://utastep.com/songs/shiwa-awase",
