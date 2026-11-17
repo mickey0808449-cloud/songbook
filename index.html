@@ -105,6 +105,12 @@ footer{font-size:13px;color:var(--muted);display:flex;flex-wrap:wrap;gap:8px;ali
 .segbar button{flex:1;border:0;background:transparent;border-radius:8px;padding:8px 4px;font-size:14px;color:var(--muted)}
 .segbar button.on{background:var(--card);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.12)}
 #settings .hint{font-size:12px;color:var(--muted)}
+.filters{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:10px 12px;margin:4px 0 16px}
+.filters .frow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:4px 0}
+.filters .lbl{font-size:13px;color:var(--muted);width:44px;flex:none}
+.filters select{padding:6px 10px;border:1px solid var(--line);border-radius:999px;background:var(--field);font-size:13px;max-width:220px}
+.filters .clear{margin-left:auto;font-size:13px;color:var(--accent);background:none;border:0;padding:4px 6px}
+.chip.f.on{background:var(--accent);border-color:var(--accent);color:#fff}
 /* PDF pages (offscreen) */
 #pdfstage{position:fixed;left:-20000px;top:0}
 .pg{width:794px;height:1123px;background:#fff;padding:60px 64px;overflow:hidden;color:#1f1d1a;font-family:var(--font)}
@@ -131,8 +137,8 @@ footer{font-size:13px;color:var(--muted);display:flex;flex-wrap:wrap;gap:8px;ali
     <input type="search" id="q" placeholder="搜尋歌名或歌手">
     <button class="btn" id="pdfAll">匯出目前清單 PDF</button>
   </div>
-  <div class="seg" id="groupSeg"><span class="lbl">分類</span></div>
-  <div class="seg" id="langSeg"><span class="lbl">語言</span></div>
+  <div class="seg" id="groupSeg"><span class="lbl">分組</span></div>
+  <div class="filters" id="filters"></div>
 
   <section class="panel" id="secDone">
     <h2><span class="dot" style="background:var(--accent)"></span>練過的歌 <span class="count" id="cDone"></span></h2>
@@ -188,7 +194,7 @@ const SEED = [
  ["メリーゴーランド","優里","ja","抒情",null,"done","","メリーコランド"],
  ["ドライフラワー","優里","ja","抒情",74,"done"],
  ["幾億光年","Omoinotake","ja","流行",96,"done"],
- ["500W","","ja","",null,"done"],
+ ["500W","Be my Girl","ja","",null,"done"],
  ["愛とか恋とか","Novelbright","ja","抒情",90,"done"],
  ["そっけない","RADWIMPS","ja","抒情",55,"done"],
  ["怪獣の花唄","Vaundy","ja","搖滾",150,"done"],
@@ -197,36 +203,36 @@ const SEED = [
  ["不言論","BAK","ja","流行",null,"done"],
  ["ビリミリオン","優里","ja","流行",125,"done","","ビリオンミリオン"],
  ["かくれんぼ","優里","ja","抒情",78,"done"],
- ["目を閉じて","","ja","",null,"done"],
+ ["瞳をとじて","平井堅","ja","抒情",null,"done","","目を閉じて"],
  ["猫","DISH//","ja","抒情",77,"done"],
  ["怪獣","サカナクション","ja","搖滾",180,"done"],
  ["レオ","優里","ja","抒情",84,"done"],
  ["世界が終るまでは…","WANDS","ja","搖滾",104,"done","","世界が終わるまで"],
- ["オレンジ","","ja","",null,"done"],
+ ["オレンジ","SPYAIR","ja","搖滾",null,"done"],
  ["3月9日","レミオロメン","ja","抒情",76,"done"],
  ["ホログラム","NICO Touches the Walls","ja","搖滾",null,"done"],
  ["ワタリドリ","[Alexandros]","ja","搖滾",135,"done"],
  ["W/X/Y","Tani Yuuki","ja","流行",142,"done"],
  ["全力少年","スキマスイッチ","ja","流行",134,"done"],
  ["魔法の絨毯","川崎鷹也","ja","抒情",139,"done","","魔法的絨毯"],
- ["太陽與地球","","zh","",null,"done"],["毒藥","","zh","",null,"done"],["飛魚","","zh","",null,"done"],["祈禱","","zh","",null,"done"],
+ ["太陽與地球","盧廣仲","zh","流行",null,"done"],["毒藥","蕭秉治","zh","抒情",null,"done"],["飛魚","蘇打綠","zh","流行",null,"done"],["祈禱","李崗霖","zh","民謠",null,"done"],
  ["希望你回來","TRASH","zh","搖滾",105,"done"],
- ["交換餘生","林俊傑","zh","抒情",null,"done"],["面具","","zh","",null,"done"],["演員","薛之謙","zh","抒情",null,"done"],
+ ["交換餘生","林俊傑","zh","抒情",null,"done"],["面具","韋禮安","zh","抒情",null,"done"],["演員","薛之謙","zh","抒情",null,"done"],
  ["嗜愛動物","麋先生","zh","搖滾",null,"done"],["長成什麼樣子算愛情","麋先生","zh","搖滾",null,"done"],
- ["長途夜車","","zh","",null,"done"],["海上的人","滅火器","zh","搖滾",null,"done"],["好久不見","陳奕迅","zh","抒情",null,"done"],
- ["思念","","zh","",null,"done"],["消愁","毛不易","zh","民謠",null,"done"],["一程山路","毛不易","zh","民謠",null,"done"],
- ["盛夏","毛不易","zh","民謠",null,"done"],["借","毛不易","zh","民謠",null,"done"],["眼底星空","","zh","",null,"done"],
- ["如果我變成回憶","Tank","zh","抒情",null,"done"],["月牙灣","F.I.R.","zh","流行",null,"done"],["眼色","","zh","",null,"done"],
+ ["長途夜車","滅火器","zh","搖滾",null,"done"],["海上的人","滅火器","zh","搖滾",null,"done"],["好久不見","陳奕迅","zh","抒情",null,"done"],
+ ["思念","黃宣","zh","R&B",null,"done"],["消愁","毛不易","zh","民謠",null,"done"],["一程山路","毛不易","zh","民謠",null,"done"],
+ ["盛夏","毛不易","zh","民謠",null,"done"],["借","毛不易","zh","民謠",null,"done"],["眼底星空","李聖傑","zh","抒情",null,"done"],
+ ["如果我變成回憶","Tank","zh","抒情",null,"done"],["月牙灣","F.I.R.","zh","流行",null,"done"],["眼色","林宥嘉","zh","抒情",null,"done"],
  ["大人中","盧廣仲","zh","流行",null,"done"],["美人魚","林俊傑","zh","抒情",null,"done"],["逆時光的浪","畢書盡","zh","抒情",null,"done"],
- ["誰","","zh","",null,"done"],["下雨的晚上","","zh","",null,"done"],["讓我留在你身邊","陳奕迅","zh","抒情",null,"done"],
- ["這是期盼的長大嗎","","zh","",null,"done","可能是 ZQS〈這是你期盼的長大嗎〉，待確認"],
+ ["誰","廖俊濤","zh","抒情",null,"done"],["下雨的晚上","黃玠","zh","民謠",null,"done"],["讓我留在你身邊","陳奕迅","zh","抒情",null,"done"],
+ ["這是你期盼的長大嗎","ZQS","zh","流行",null,"done","","這是期盼的長大嗎"],
  ["離開的一路上","理想混蛋","zh","流行",null,"done"],["不是因為天氣晴朗才愛你","理想混蛋","zh","流行",null,"done"],
- ["終於說出口","宋念宇","zh","抒情",null,"done"],["魚","","zh","",null,"done","陳綺貞、怕胖團都有同名歌，待確認"],
- ["誰","","zh","",null,"done"],["想你的習慣","宋念宇","zh","抒情",null,"done"],["Fix You","Coldplay","en","搖滾",69,"done"],
- ["ひまわりの約束","秦基博","ja","抒情",79,"todo"],["Planet","","ja","",null,"todo"],["さよならエレジー","菅田将暉","ja","搖滾",155,"todo"],
- ["カブトムシ","aiko","ja","抒情",74,"todo"],["しあわせ","","ja","",null,"todo"]
+ ["終於說出口","宋念宇","zh","抒情",null,"done"],["魚","怕胖團","zh","搖滾",null,"done"],
+ ["誰","李友廷","zh","民謠",null,"done"],["想你的習慣","宋念宇","zh","抒情",null,"done"],["Fix You","Coldplay","en","搖滾",69,"done"],
+ ["ひまわりの約束","秦基博","ja","抒情",79,"todo"],["Planet","ラムジ","ja","流行",null,"todo"],["さよならエレジー","菅田将暉","ja","搖滾",155,"todo"],
+ ["カブトムシ","aiko","ja","抒情",74,"todo"],["しわあわせ","Vaundy","ja","抒情",null,"todo","","しあわせ"]
 ];
-const DATA_VER = 2;
+const DATA_VER = 3;
 const LANG = {ja:"日文",zh:"中文",en:"英文",ko:"韓文",other:"其他"};
 const GENRES = ["抒情","流行","搖滾","民謠","R&B","說唱","動漫/影視","其他"];
 const KEY = "songbook.v1";
@@ -246,6 +252,7 @@ function mergeSeed(){ // fill in researched info without overwriting the user's 
     if(!s.artist||(s.title==="魚"&&s.artist==="陳綺貞"))s.artist=r[1];
     if(!s.genre)s.genre=r[3];
     if(!s.bpm&&r[4])s.bpm=r[4];
+    if(/^(可能是 ZQS|陳綺貞、怕胖團)/.test(s.note||""))s.note="";
     if(!s.note&&r[6])s.note=r[6];
   });
 }
@@ -258,7 +265,10 @@ async function load(){
 function blank0(o){return blank(o)}
 
 /* ---------- ui state ---------- */
-let groupBy = "lang", langFilter = "all", query = "";
+let groupBy = "lang", query = "";
+const F={lang:new Set(),tempo:new Set(),genre:new Set(),artist:""};
+const tempoKey=b=>!b?"none":b<90?"slow":b<=120?"mid":"fast";
+const TEMPO={slow:"慢板 <90",mid:"中板 90–120",fast:"快板 >120",none:"未填 BPM"};
 let cur = null, editing = false;
 let view = {orig:true, furi:true, roma:false, zh:true, en:true};
 
@@ -277,14 +287,23 @@ function groupKey(s){
 }
 function filtered(){
   const q=query.trim().toLowerCase();
-  return songs.filter(s=>(langFilter==="all"||s.lang===langFilter)&&(!q||(s.title+" "+s.artist).toLowerCase().includes(q)));
+  return songs.filter(s=>(!F.lang.size||F.lang.has(s.lang))&&(!F.tempo.size||F.tempo.has(tempoKey(s.bpm)))&&(!F.genre.size||F.genre.has(s.genre||"未分類"))&&(!F.artist||s.artist===F.artist)&&(!q||(s.title+" "+s.artist).toLowerCase().includes(q)));
 }
 
 function renderSegs(){
   const g=[["lang","語言"],["genre","風格"],["tempo","節奏(BPM)"],["artist","歌手"],["none","不分組"]];
   $("#groupSeg").innerHTML='<span class="lbl">分類</span>'+g.map(([k,l])=>`<button class="chip ${groupBy===k?"on":""}" data-g="${k}">${l}</button>`).join("");
-  const ls=[["all","全部"],...Object.entries(LANG).filter(([k])=>songs.some(s=>s.lang===k))];
-  $("#langSeg").innerHTML='<span class="lbl">語言</span>'+ls.map(([k,l])=>`<button class="chip ${langFilter===k?"on":""}" data-l="${k}">${l}</button>`).join("");
+  const chips=(key,pairs)=>pairs.map(([k,l])=>`<button class="chip f ${F[key].has(k)?"on":""}" data-f="${key}" data-k="${esc(k)}">${esc(l)}</button>`).join("");
+  const langs=Object.entries(LANG).filter(([k])=>songs.some(s=>s.lang===k));
+  const genres=[...new Set(songs.map(s=>s.genre||"未分類"))].sort((a,b)=>(a==="未分類")-(b==="未分類")||a.localeCompare(b,"zh-Hant")).map(g=>[g,g]);
+  const artists=[...new Set(songs.map(s=>s.artist).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"zh-Hant"));
+  const any=F.lang.size||F.tempo.size||F.genre.size||F.artist;
+  $("#filters").innerHTML=`<div class="frow"><span class="lbl">語言</span>${chips("lang",langs)}${any?'<button class="clear" id="fClear">清除篩選</button>':""}</div>
+  <div class="frow"><span class="lbl">節奏</span>${chips("tempo",Object.entries(TEMPO))}</div>
+  <div class="frow"><span class="lbl">風格</span>${chips("genre",genres)}</div>
+  <div class="frow"><span class="lbl">歌手</span><select id="fArtist"><option value="">全部歌手</option>${artists.map(a=>`<option ${F.artist===a?"selected":""}>${esc(a)}</option>`).join("")}</select></div>`;
+  $("#fArtist").onchange=e=>{F.artist=e.target.value;renderHome()};
+  if(any)$("#fClear").onclick=()=>{F.lang.clear();F.tempo.clear();F.genre.clear();F.artist="";renderHome()};
 }
 function cardHTML(s){
   const tags=[LANG[s.lang]];
@@ -503,7 +522,7 @@ async function exportPDF(list,opt,filename){
 document.addEventListener("click",e=>{
   const c=e.target.closest(".song"); if(c){openSong(c.dataset.id);return}
   const g=e.target.closest("[data-g]"); if(g){groupBy=g.dataset.g;renderHome();return}
-  const l=e.target.closest("[data-l]"); if(l){langFilter=l.dataset.l;renderHome();return}
+  const fb=e.target.closest("[data-f]"); if(fb){const S=F[fb.dataset.f],k=fb.dataset.k;S.has(k)?S.delete(k):S.add(k);renderHome();return}
   const v=e.target.closest("#dbody [data-v]"); if(v&&cur){view[v.dataset.v]=!view[v.dataset.v];renderDetail();return}
 });
 $("#q").addEventListener("input",e=>{query=e.target.value;renderHome()});
