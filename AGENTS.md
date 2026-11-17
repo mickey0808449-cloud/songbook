@@ -28,9 +28,9 @@ Jen 上歌唱課用的個人歌單網頁。純靜態單一檔案，部署在 Git
 ### 每首歌的欄位
 `title, artist, lang (ja|zh|en…), genre, bpm (數字或 null), key, status, note, lyrics`
 
-`status`：`done` 練過的歌、`practicing` 練習中、`base` 基礎、`todo` 待練。
+`status`：`done` 已練、`practicing` 練習中、`base` 基礎、`todo` 待練。
 
-首頁以頂部橫向按鈕切換上述四個分區，預設顯示「練過的歌」，一次只顯示一個分區。「匯出目前清單 PDF」只匯出目前分區中符合搜尋與篩選的歌曲。
+首頁以頂部橫向按鈕切換上述四個分區，預設顯示「已練」，一次只顯示一個分區。「匯出目前清單 PDF」只匯出目前分區中符合搜尋與篩選的歌曲。
 
 ### SEED（預設歌單）
 每列格式：`[title, artist, lang, genre, bpm, status, note, oldTitle]`

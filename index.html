@@ -151,7 +151,7 @@ footer{font-size:13px;color:var(--muted);display:flex;flex-wrap:wrap;gap:8px;ali
   <div class="filters" id="filters"></div>
 
   <section class="panel" id="secDone">
-    <h2><span class="dot" style="background:var(--accent)"></span>練過的歌 <span class="count" id="cDone"></span></h2>
+    <h2><span class="dot" style="background:var(--accent)"></span>已練 <span class="count" id="cDone"></span></h2>
     <div id="listDone"></div>
   </section>
 
@@ -187,7 +187,7 @@ footer{font-size:13px;color:var(--muted);display:flex;flex-wrap:wrap;gap:8px;ali
     <button class="btn small" id="back">← 返回</button>
     <span class="sp"></span>
     <button class="btn small" id="editBtn">編輯</button>
-    <select class="btn small" id="statusSel" aria-label="分區"><option value="done">練過</option><option value="practicing">練習中</option><option value="base">基礎</option><option value="todo">待練</option></select>
+    <select class="btn small" id="statusSel" aria-label="分區"><option value="done">已練</option><option value="practicing">練習中</option><option value="base">基礎</option><option value="todo">待練</option></select>
     <button class="btn small primary" id="pdfOne">匯出 PDF</button>
   </div></div>
   <div class="wrap" id="dbody"></div>
@@ -282,7 +282,7 @@ function blank0(o){return blank(o)}
 /* ---------- ui state ---------- */
 let groupBy = "lang", query = "";
 let activeSection = "done";
-const SECTIONS = [["done","練過的歌","Done"],["practicing","練習中","Practicing"],["base","基礎","Base"],["todo","待練","Todo"]];
+const SECTIONS = [["done","已練","Done"],["practicing","練習中","Practicing"],["base","基礎","Base"],["todo","待練","Todo"]];
 const sectionOf = s => ["done","practicing","base"].includes(s.status)?s.status:"todo";
 const F={lang:new Set(),tempo:new Set(),genre:new Set(),artist:""};
 const tempoKey=b=>!b?"none":b<90?"slow":b<=120?"mid":"fast";
@@ -352,7 +352,7 @@ function renderHome(){
   $("#listDone").innerHTML=listHTML(d); $("#listBase").innerHTML=listHTML(b); $("#listTodo").innerHTML=listHTML(t);
   $("#cDone").textContent=d.length+" 首"; $("#cBase").textContent=b.length+" 首"; $("#cTodo").textContent=t.length+" 首";
   const all=songs.length, done=songs.filter(s=>s.status==="done").length, practicing=songs.filter(s=>s.status==="practicing").length, base=songs.filter(s=>s.status==="base").length;
-  $("#summary").textContent=`共 ${all} 首 · 練過 ${done} · 練習中 ${practicing} · 基礎 ${base} · 待練 ${all-done-practicing-base}`;
+  $("#summary").textContent=`共 ${all} 首 · 已練 ${done} · 練習中 ${practicing} · 基礎 ${base} · 待練 ${all-done-practicing-base}`;
 }
 
 /* ---------- Japanese furigana / romaji (kuroshiro + kuromoji, loaded on demand) ---------- */
@@ -560,7 +560,7 @@ document.addEventListener("click",e=>{
 $("#q").addEventListener("input",e=>{query=e.target.value;renderHome()});
 $("#back").onclick=closeSong;
 $("#editBtn").onclick=()=>{if(editing){saveEdit()}else{editing=true;renderDetail()}};
-$("#statusSel").onchange=e=>{cur.status=e.target.value;save();renderDetail();toast("已移到「"+({done:"練過的歌",practicing:"練習中",base:"基礎",todo:"待練"})[cur.status]+"」")};
+$("#statusSel").onchange=e=>{cur.status=e.target.value;save();renderDetail();toast("已移到「"+({done:"已練",practicing:"練習中",base:"基礎",todo:"待練"})[cur.status]+"」")};
 $("#pdfOne").onclick=()=>exportPDF([cur],view,`${cur.title}.pdf`);
 $("#pdfAll").onclick=()=>exportPDF(filtered().filter(s=>sectionOf(s)===activeSection),{orig:true,furi:true,roma:false,zh:true,en:true},`歌單_${new Date().toISOString().slice(0,10)}.pdf`);
 $("#addForm").addEventListener("submit",e=>{e.preventDefault();const t=$("#addTitle").value.trim();if(!t)return;
