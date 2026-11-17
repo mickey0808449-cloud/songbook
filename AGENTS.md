@@ -35,7 +35,7 @@ Jen 上歌唱課用的個人歌單網頁。純靜態單一檔案，部署在 Git
 ### SEED（預設歌單）
 每列格式：`[title, artist, lang, genre, bpm, status, note, oldTitle]`
 - `oldTitle`：舊名（錯字修正用），`mergeSeed()` 會把使用者資料中的舊名改成新名。
-- 改 SEED → `DATA_VER` +1（目前是 4）。
+- 改 SEED → `DATA_VER` +1（目前是 5）。
 
 ### 載入流程
 `load()` → 讀 localStorage → 舊格式用 `combineOld()` 轉換 → 若存的版本 < `DATA_VER` 就跑 `mergeSeed()` → `save()`。
@@ -78,5 +78,15 @@ html2canvas 1.4.1 + jsPDF 2.5.1（cdnjs）。離螢幕產生 A4 頁面（794×11
 
 ## 待辦
 
-- SEED 中「太陽與地球」BPM 應改為 66（目前 132 是倍速），改完 `DATA_VER` → 5。注意 mergeSeed 只補空值，已存的 132 需使用者自己改，或另寫一次性修正。
-- 其餘未填 BPM 的歌由 Jen 用點拍工具補。
+- 已將 SEED「太陽與地球」BPM 改為 66、`DATA_VER` 改為 5；已有的 65、132 等數值保留。
+- 未確認的 BPM、Key 清單與逐曲原因見 `research/核對說明.md`。BPM 必須核對版本與半速／倍速，原有值有疑點只提示，不逕行覆寫。
+
+## 查核資料與安全補齊
+
+- `research/bpm-key-audit.json`：65 首逐曲來源、候選值與核准補充值；不含歌詞。
+- `research/songs-reviewed.json`：以 Jen 提供的 2026-11-17 匯出檔為基準的完整補充檔；整份匯入會取代目前歌單，優先使用網站「補齊歌曲資料」。
+- 網站 `RESEARCH` 內嵌參考資料，維持 `index.html` 單檔可用。執行 `node research/update-metadata.cjs` 重建查核文件、補充 JSON 與內嵌資料。
+- 「補齊歌曲資料」先列預覽，再由使用者按「補齊空白資料」套用。以歌名＋歌手配對，只補已核准的空白 BPM／Key；同名同歌手有重複時跳過，不新增或刪除歌曲。
+- 寫入前以 `songbook.v1.metadata-backup` 留存更新前完整歌單，可下載 JSON；儲存失敗不得改動記憶體歌單。不要自動套用參考值覆蓋既有資料。
+- 每首歌可展開「資料核對」查看來源與分歧；參考 Key 不代表 Jen 個人適合的演唱調。
+- 驗證：`node tests/metadata.cjs`；瀏覽器測試檔可用 `node tests/browser-fixture.cjs <輸出HTML路徑>` 產生，請使用隔離測試設定檔，勿操作真實瀏覽器資料。

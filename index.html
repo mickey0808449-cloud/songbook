@@ -40,6 +40,13 @@ header p{margin:4px 0 0;color:var(--muted);font-size:14px}
 .chip.on{background:var(--accent-soft);color:var(--ink);border-color:var(--accent)}
 .section-switch{display:flex;gap:8px;overflow-x:auto;padding:12px 0 4px}
 .section-switch button{flex:0 0 auto}
+.metadata-review{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:12px 16px;margin:0 0 16px}
+.metadata-review summary,.research-note summary{cursor:pointer;font-weight:500}
+.metadata-review p,.research-note p{font-size:13px;line-height:1.7;color:var(--muted)}
+.metadata-actions{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.metadata-items{padding-left:22px;font-size:13px;line-height:1.8;max-height:280px;overflow:auto}
+.research-note{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:14px;font-size:13px}
+.research-note a{color:var(--todo)}
 .btn{border:1px solid var(--line);background:var(--field);border-radius:10px;padding:9px 14px;font-size:14px}
 .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
 .btn.small{padding:6px 10px;font-size:13px}
@@ -97,7 +104,7 @@ footer{font-size:13px;color:var(--muted);display:flex;flex-wrap:wrap;gap:8px;ali
 .editor textarea{min-height:420px;line-height:1.6;resize:vertical}
 .tx{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 @media (max-width:620px){.tx{grid-template-columns:1fr}.addform{grid-template-columns:1fr 90px}.addform .btn{grid-column:1/-1}}
-.status{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:999px;font-size:14px;display:none;z-index:50;max-width:90vw;text-align:center}
+.status{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:999px;font-size:14px;display:none;z-index:50;max-width:90vw;text-align:center}
 .status.show{display:block}
 
 .hrow{display:flex;align-items:flex-start;gap:12px}.hrow header{flex:1}
@@ -146,9 +153,22 @@ footer{font-size:13px;color:var(--muted);display:flex;flex-wrap:wrap;gap:8px;ali
   <div class="toolbar">
     <input type="search" id="q" placeholder="搜尋歌名或歌手">
     <button class="btn" id="pdfAll">匯出目前清單 PDF</button>
+    <button class="btn" id="reviewMetadata">補齊歌曲資料</button>
   </div>
   <div class="seg" id="groupSeg"><span class="lbl">分組</span></div>
   <div class="filters" id="filters"></div>
+
+  <details class="metadata-review" id="metadataReview">
+    <summary id="metadataSummary">歌曲資料補充</summary>
+    <p>依原唱版本核對，只補空白 BPM 與參考 Key。已填的數值、歌曲狀態、備註與歌詞都會保留。部分歌曲有轉調或版本差異，仍需搭配實際伴奏確認。</p>
+    <div id="metadataPreview"></div>
+    <div class="metadata-actions">
+      <button type="button" class="btn primary" id="applyMetadata">補齊空白資料</button>
+      <button type="button" class="btn" id="downloadMetadataBackup" hidden>下載更新前備份</button>
+    </div>
+    <p id="metadataPending"></p>
+    <p>來源與疑點可在每首歌曲的「資料核對」中查看。</p>
+  </details>
 
   <section class="panel" id="secDone">
     <h2><span class="dot" style="background:var(--accent)"></span>已練 <span class="count" id="cDone"></span></h2>
@@ -230,7 +250,7 @@ const SEED = [
  ["W/X/Y","Tani Yuuki","ja","流行",142,"done"],
  ["全力少年","スキマスイッチ","ja","流行",134,"done"],
  ["魔法の絨毯","川崎鷹也","ja","抒情",139,"done","","魔法的絨毯"],
- ["太陽與地球","盧廣仲","zh","流行",132,"done"],["毒藥","蕭秉治","zh","抒情",null,"done"],["飛魚","蘇打綠","zh","流行",null,"done"],["祈禱","李崗霖","zh","民謠",null,"done"],
+ ["太陽與地球","盧廣仲","zh","流行",66,"done"],["毒藥","蕭秉治","zh","抒情",null,"done"],["飛魚","蘇打綠","zh","流行",null,"done"],["祈禱","李崗霖","zh","民謠",null,"done"],
  ["希望你回來","TRASH","zh","搖滾",105,"done"],
  ["交換餘生","林俊傑","zh","抒情",65,"done"],["面具","韋禮安","zh","抒情",null,"done"],["演員","薛之謙","zh","抒情",92,"done"],
  ["嗜愛動物","麋先生","zh","搖滾",null,"done"],["長成什麼樣子算愛情","麋先生","zh","搖滾",null,"done"],
@@ -247,10 +267,889 @@ const SEED = [
  ["ひまわりの約束","秦基博","ja","抒情",79,"todo"],["Planet","ラムジ","ja","流行",null,"todo"],["さよならエレジー","菅田将暉","ja","搖滾",155,"todo"],
  ["カブトムシ","aiko","ja","抒情",74,"todo"],["しわあわせ","Vaundy","ja","抒情",null,"todo","","しあわせ"]
 ];
-const DATA_VER = 4;
+const DATA_VER = 5;
 const LANG = {ja:"日文",zh:"中文",en:"英文",ko:"韓文",other:"其他"};
 const GENRES = ["抒情","流行","搖滾","民謠","R&B","說唱","動漫/影視","其他"];
 const KEY = "songbook.v1";
+
+/* RESEARCH_DATA_START */
+const RESEARCH = [
+ {
+  "title": "メリーゴーランド",
+  "artist": "優里",
+  "bpm": null,
+  "key": "",
+  "referenceBpm": "60 / 180",
+  "referenceKey": "",
+  "note": "複拍子／拍點單位與來源分歧；保留 62，需對照實際伴奏。",
+  "sources": [
+   "https://bpm-database.tokyo/music/kK8yWs3v",
+   "https://www.chord-rinne.jp/scode.php?id=5439"
+  ]
+ },
+ {
+  "title": "ドライフラワー",
+  "artist": "優里",
+  "bpm": 74,
+  "key": "G",
+  "referenceBpm": "74 / 148",
+  "referenceKey": "G",
+  "note": "74 與 148 為半速／倍速，保留 74。",
+  "sources": [
+   "https://er-music.jp/analysis/241/",
+   "https://bpm-database.tokyo/music/3KCTrvO0"
+  ]
+ },
+ {
+  "title": "幾億光年",
+  "artist": "Omoinotake",
+  "bpm": 96,
+  "key": "",
+  "referenceBpm": "96–99",
+  "referenceKey": "Eb / F#",
+  "note": "BPM 大致相符；調性來源衝突，不填 Key。",
+  "sources": [
+   "https://ja.chordwiki.org/wiki/幾億光年（Omoinotake）",
+   "https://tunebat.com/Info/-Omoinotake/5Ak1F5nGzM4KRhE0H1Q3CP"
+  ]
+ },
+ {
+  "title": "500W",
+  "artist": "Be my Girl",
+  "bpm": null,
+  "key": "",
+  "referenceBpm": "約 71.5 / 143",
+  "referenceKey": "E",
+  "note": "官方 MV 對應分析為 143；原 71 約為半速，保留。Key 目前單一分析，留空。",
+  "sources": [
+   "https://www.youtube.com/watch?v=ynSKV7G31Sg",
+   "https://chordify.net/it/chords/500w-shenga-canshita-mengwo-canu-official-music-video-shenga-canshita-mengwo-canu"
+  ]
+ },
+ {
+  "title": "愛とか恋とか",
+  "artist": "Novelbright",
+  "bpm": 90,
+  "key": "",
+  "referenceBpm": "90",
+  "referenceKey": "",
+  "note": "原唱和弦譜標示 90，與原值相符。",
+  "sources": [
+   "https://www.chord-rinne.jp/dcode.php?id=5792"
+  ]
+ },
+ {
+  "title": "そっけない",
+  "artist": "RADWIMPS",
+  "bpm": 55,
+  "key": "C",
+  "referenceBpm": "55",
+  "referenceKey": "C",
+  "note": "和弦譜明示 C、55；補參考調性，保留原 BPM。",
+  "sources": [
+   "https://ja.chordwiki.org/wiki/そっけない"
+  ]
+ },
+ {
+  "title": "怪獣の花唄",
+  "artist": "Vaundy",
+  "bpm": 150,
+  "key": "D",
+  "referenceBpm": "150",
+  "referenceKey": "D",
+  "note": "原唱和弦譜明示 D、150；補參考調性。",
+  "sources": [
+   "https://keytube.net/song/detail/24128",
+   "https://bpm-database.tokyo/album/qbEYvRca",
+   "https://ja.chordwiki.org/wiki/怪獣の花唄（Vaundy）"
+  ]
+ },
+ {
+  "title": "瞬き",
+  "artist": "back number",
+  "bpm": null,
+  "key": "Eb",
+  "referenceBpm": "80 / 120",
+  "referenceKey": "Eb",
+  "note": "涉及複拍子拍點單位；80 與 120 是 2:3 關係，不是一般半速／倍速，保留 80。",
+  "sources": [
+   "https://blog.sound-time.com/2024/01/blog-post_12.html",
+   "https://songbpm.com/%40back-number/556s44gn-i1k2c"
+  ]
+ },
+ {
+  "title": "まちがいさがし",
+  "artist": "菅田将暉",
+  "bpm": 78,
+  "key": "D",
+  "referenceBpm": "78 / 155.9",
+  "referenceKey": "D",
+  "note": "菅田將暉版和弦譜明示 D；BPM 78 約為 155.9 半速，保留。",
+  "sources": [
+   "https://bpm-database.tokyo/music/wVkQ7ibq",
+   "https://ja.chordwiki.org/wiki/まちがいさがし+(菅田将暉)"
+  ]
+ },
+ {
+  "title": "不言論",
+  "artist": "BAK",
+  "bpm": null,
+  "key": "",
+  "referenceBpm": "79–81 / 160",
+  "referenceKey": "C",
+  "note": "原唱資料庫 79、編譜約 80；原 81 先保留，Key 尚待第二來源核對。",
+  "sources": [
+   "https://keytube.net/song/detail/67054",
+   "https://www.chord-rinne.jp/dcode.php?id=7318",
+   "https://songdata.io/track/15EelnO2FtSqnYpaN00Tlq/-Hugenron-by-BAK"
+  ]
+ },
+ {
+  "title": "ビリミリオン",
+  "artist": "優里",
+  "bpm": 125,
+  "key": "Bb",
+  "referenceBpm": "125；局部 188",
+  "referenceKey": "Bb",
+  "note": "和弦譜明示 Bb、主體 125；局部標示 188／3拍子，原 BPM 保留。",
+  "sources": [
+   "https://ja.chordwiki.org/wiki/ビリミリオン（優里）"
+  ]
+ },
+ {
+  "title": "かくれんぼ",
+  "artist": "優里",
+  "bpm": 78,
+  "key": "",
+  "referenceBpm": "78 / 156",
+  "referenceKey": "",
+  "note": "半速／倍速記法，保留 78。",
+  "sources": [
+   "https://ja.chordwiki.org/wiki/かくれんぼ+(優里)",
+   "https://bpm-database.tokyo/music/kyKQR918"
+  ]
+ },
+ {
+  "title": "瞳をとじて",
+  "artist": "平井堅",
+  "bpm": 71,
+  "key": "Eb",
+  "referenceBpm": "71 / 141.7",
+  "referenceKey": "Eb",
+  "note": "原唱和弦譜明示 Eb、71，補參考調性；141.7 為近似倍速記法。",
+  "sources": [
+   "https://ja.chordwiki.org/wiki/瞳をとじて",
+   "https://bpm-database.tokyo/music/bLnHjDOQ"
+  ]
+ },
+ {
+  "title": "猫",
+  "artist": "DISH//",
+  "bpm": 77,
+  "key": "Eb",
+  "referenceBpm": "77 / 154",
+  "referenceKey": "Eb",
+  "note": "半速／倍速記法，保留 77。",
+  "sources": [
+   "https://ja.chordwiki.org/wiki/猫+(DISH)",
+   "https://tunebat.com/Info/-DISH-/6sIx7Cn37DGEhjy9hBP8Gx"
+  ]
+ },
+ {
+  "title": "怪獣",
+  "artist": "サカナクション",
+  "bpm": 180,
+  "key": "",
+  "referenceBpm": "90 / 180",
+  "referenceKey": "",
+  "note": "保留 180；部分段落有半速感，不能把整首一律折半。",
+  "sources": [
+   "https://keytube.net/song/detail/126082",
+   "https://moavl.net/voice_training/13336.html/"
+  ]
+ },
+ {
+  "title": "レオ",
+  "artist": "優里",
+  "bpm": null,
+  "key": "F",
+  "referenceBpm": "84 / 93",
+  "referenceKey": "F",
+  "note": "和弦譜標示 F、93，另一站 84／168；補編譜參考調性，原 BPM 84 保留並列待確認。",
+  "sources": [
+   "https://ja.chordwiki.org/wiki/レオ",
+   "https://bpm-database.tokyo/music/07fP2TUT",
+   "https://keytube.net/song/detail/67172"
+  ]
+ },
+ {
+  "title": "世界が終るまでは…",
+  "artist": "WANDS",
+  "bpm": 104,
+  "key": "C",
+  "referenceBpm": "104 / 106",
+  "referenceKey": "C",
+  "note": "原唱和弦譜明示 C、104；另一來源 106，保留原 BPM。",
+  "sources": [
+   "https://ja.chordwiki.org/wiki/世界が終るまでは…",
+   "https://keytube.net/song/detail/30812"
+  ]
+ },
+ {
+  "title": "オレンジ",
+  "artist": "SPYAIR",
+  "bpm": 100,
+  "key": "D",
+  "referenceBpm": "100",
+  "referenceKey": "D",
+  "note": "原 101 與兩來源 100 差 1 BPM，先保留 101。",
+  "sources": [
+   "https://songdata.io/track/6M6ZNRplLNspFEn6Ab3mOv/-by-SPYAIR",
+   "https://songbpm.com/%40spyair/orenzi-NT5wtrcer3"
+  ]
+ },
+ {
+  "title": "3月9日",
+  "artist": "レミオロメン",
+  "bpm": 76,
+  "key": "F",
+  "referenceBpm": "76–76.5 / 152",
+  "referenceKey": "F",
+  "note": "原唱和弦譜明示 F、76；76.5 及 152 為近似或倍速記法，保留原 BPM。",
+  "sources": [
+   "https://www.chord-rinne.jp/scode.php?id=2045",
+   "https://keytube.net/song/detail/16166",
+   "https://ja.chordwiki.org/wiki/3月9日"
+  ]
+ },
+ {
+  "title": "ホログラム",
+  "artist": "NICO Touches the Walls",
+  "bpm": 156,
+  "key": "",
+  "referenceBpm": "156 / 78",
+  "referenceKey": "A / C",
+  "note": "速度資料約156／半速78，與原76有差距；Key來源A與C衝突，原值保留、調性不填。",
+  "sources": [
+   "https://keytube.net/song/detail/7182",
+   "https://bpm-database.tokyo/music/HIJ2nVUf",
+   "https://songbpm.com/%40nico-touches-the-walls/horoguramu"
+  ]
+ },
+ {
+  "title": "ワタリドリ",
+  "artist": "[Alexandros]",
+  "bpm": 135,
+  "key": "",
+  "referenceBpm": "135",
+  "referenceKey": "",
+  "note": "KeyTube 相符；另有明顯估測分歧，保留 135。",
+  "sources": [
+   "https://keytube.net/song/detail/861"
+  ]
+ },
+ {
+  "title": "W/X/Y",
+  "artist": "Tani Yuuki",
+  "bpm": 142,
+  "key": "",
+  "referenceBpm": "71 / 106 / 142",
+  "referenceKey": "",
+  "note": "71／142 為倍速；另有106／3拍辨識，涉及拍點單位或錯判。保留原142，Key不採單一自動分析。",
+  "sources": [
+   "https://keytube.net/song/detail/78426",
+   "https://wikiwiki.jp/taiko-fumen/収録曲/おに/W／X／Y",
+   "https://www.snaplyrics.com/song/w-x-y-tani-yuuki-bpm-key"
+  ]
+ },
+ {
+  "title": "全力少年",
+  "artist": "スキマスイッチ",
+  "bpm": 134,
+  "key": "D",
+  "referenceBpm": "134",
+  "referenceKey": "D",
+  "note": "和弦譜及單曲資料庫相符。",
+  "sources": [
+   "https://ja.chordwiki.org/wiki/全力少年",
+   "https://bpm-database.tokyo/album/g87z9MQi"
+  ]
+ },
+ {
+  "title": "魔法の絨毯",
+  "artist": "川崎鷹也",
+  "bpm": null,
+  "key": "Ab",
+  "referenceBpm": "74 / 139",
+  "referenceKey": "Ab",
+  "note": "和弦譜明示 Ab；74 與另一來源139非精確倍速，保留原139並列待確認。",
+  "sources": [
+   "https://ja.chordwiki.org/wiki/魔法の絨毯+(川崎鷹也)",
+   "https://keytube.net/song/detail/27717"
+  ]
+ },
+ {
+  "title": "太陽與地球",
+  "artist": "盧廣仲",
+  "bpm": 66,
+  "key": "G",
+  "referenceBpm": "66 / 131.7–132",
+  "referenceKey": "G",
+  "note": "兩份編譜支持 G，教學譜標示66，資料庫約132；保留使用者65，網站新歌單預設改66。",
+  "sources": [
+   "https://spotify.checkleaked.cc/tracks/0bQSWXtpau3VkNI1ZcXTQA",
+   "https://music.mdworks.dev/song/crowd-lu-5118/",
+   "https://kanpu8.com/chords/sun-and-earth/",
+   "https://chord4.com/zh-hant/tabs/36531"
+  ]
+ },
+ {
+  "title": "毒藥",
+  "artist": "蕭秉治",
+  "bpm": 64,
+  "key": "",
+  "referenceBpm": "64 / 128",
+  "referenceKey": "Db / Bbm",
+  "note": "BPM 兩來源支持 64／128，補 64；調性有關係大小調分歧，Key 暫留空。現場 132 不採用。",
+  "sources": [
+   "https://songbpm.com/%40xiao-bing-zhi/du-yao-Euz3yY08E-",
+   "https://chord4.com/zh-hant/tabs/33482"
+  ]
+ },
+ {
+  "title": "飛魚",
+  "artist": "蘇打綠",
+  "bpm": 127,
+  "key": "D",
+  "referenceBpm": "127",
+  "referenceKey": "D",
+  "note": "2005 同名專輯版；兩資料庫相符，補 127、D 大調。",
+  "sources": [
+   "https://songdata.io/track/6CUuTGGSxITiFAYXQRk368/-by-sodagreen",
+   "https://songbpm.com/%40sodagreen?after=fei-yu---live-uaUMYTo5YX"
+  ]
+ },
+ {
+  "title": "祈禱",
+  "artist": "李崗霖",
+  "bpm": 65,
+  "key": "",
+  "referenceBpm": "65 / 130",
+  "referenceKey": "Eb / Fm",
+  "note": "BPM 65／130 相符，補 65；Key 來源互相衝突，留空。",
+  "sources": [
+   "https://songbpm.com/%40li-gang-lin/qi-dao",
+   "https://chordify.net/chords/li-gang-lin-songs/qi-dao-chords"
+  ]
+ },
+ {
+  "title": "希望你回來",
+  "artist": "TRASH",
+  "bpm": 105,
+  "key": "",
+  "referenceBpm": "105",
+  "referenceKey": "Gm",
+  "note": "BPM 與專輯資料相符；Key 只有單一資料庫，暫不填。",
+  "sources": [
+   "https://songdata.io/track/0r4jJxnrDSYBDc001AWhjX/-by-TRASH"
+  ]
+ },
+ {
+  "title": "交換餘生",
+  "artist": "林俊傑",
+  "bpm": 65,
+  "key": "D",
+  "referenceBpm": "65 / 130",
+  "referenceKey": "D",
+  "note": "兩來源皆 130；保留半速 65，補 D 大調。",
+  "sources": [
+   "https://songbpm.com/%40jj-lin/jiao-huan-yu-sheng",
+   "https://tunebat.com/Info/-JJ-Lin/4daA20tBusVX29bUWgd8Dw"
+  ]
+ },
+ {
+  "title": "面具",
+  "artist": "韋禮安",
+  "bpm": null,
+  "key": "G",
+  "referenceBpm": "144",
+  "referenceKey": "G（專輯）/ F#（現場候選）",
+  "note": "專輯版採譜兩站為G，現場分析F#不能混用；補G參考調性，BPM144仍缺同版交叉證據。",
+  "sources": [
+   "https://getsongbpm.com/album/yousuowei/2XlmA",
+   "https://chordify.net/chords/kkbox-presents-music-on-the-road-vol2-kkbox",
+   "https://chord4.com/zh-hant/tabs/10987",
+   "https://daydayguitar.blogspot.com/2014/05/p0NmAmbCr4I.html"
+  ]
+ },
+ {
+  "title": "演員",
+  "artist": "薛之謙",
+  "bpm": null,
+  "key": "",
+  "referenceBpm": "45–46 / 90–92",
+  "referenceKey": "",
+  "note": "譜面顯示 45–46，原 92 可能為倍速；沒有直接原版音訊量測，保留 92。",
+  "sources": [
+   "https://chord4.com/zh-hant/tabs/35618"
+  ]
+ },
+ {
+  "title": "嗜愛動物",
+  "artist": "麋先生",
+  "bpm": 82,
+  "key": "F",
+  "referenceBpm": "82 / 164",
+  "referenceKey": "F",
+  "note": "2020專輯資料82，官方MV對應分析82.05，補82；先前81–83視為片源／分析差異。",
+  "sources": [
+   "https://kanpu8.com/chords/loveholic/",
+   "https://www.otokage.com/song/1960434.html",
+   "https://chordify.net/chords/mi-xian-sheng-mixer-shi-ai-dong-wu-audio-an",
+   "https://trackify.am/track/7d7UecVUtLJzEplx7nh61p/tempo",
+   "https://www.snaplyrics.com/song/mixer-7d7UecVU-bpm-key",
+   "https://chordu.com/chords-tabs-麋先生mixer-嗜愛動物loveholic-是愛版-official-music-video-id_1OPl-jhic4k"
+  ]
+ },
+ {
+  "title": "長成什麼樣子算愛情",
+  "artist": "麋先生",
+  "bpm": 134,
+  "key": "G",
+  "referenceBpm": "134",
+  "referenceKey": "G",
+  "note": "兩資料庫對應錄音室版本，補 134、G。",
+  "sources": [
+   "https://songdata.io/track/1J6M0Lw3Gyam7qL4ndlXbF/-by-Mixer",
+   "https://tunebat.com/Info/-/09hpKZJxqSY7x2eDZKIuvI"
+  ]
+ },
+ {
+  "title": "長途夜車",
+  "artist": "滅火器",
+  "bpm": 103,
+  "key": "",
+  "referenceBpm": "103",
+  "referenceKey": "F",
+  "note": "專輯版本及另一 BPM 表皆為 103；補 BPM，F 僅單一來源。",
+  "sources": [
+   "https://songdata.io/track/3aH4zwCqiIEH08zbJO4jlH/-by-Fire-EX",
+   "https://bpm-database.tokyo/music/dcvWhP3g"
+  ]
+ },
+ {
+  "title": "海上的人",
+  "artist": "滅火器",
+  "bpm": null,
+  "key": "",
+  "referenceBpm": "94 / 94.9",
+  "referenceKey": "",
+  "note": "2009 原專輯 94、2017 版本約 95；版本未指定，暫留空。",
+  "sources": [
+   "https://getsongbpm.com/song/haishangderen/GR2455",
+   "https://bpm-database.tokyo/music/rQkXCGxS"
+  ]
+ },
+ {
+  "title": "好久不見",
+  "artist": "陳奕迅",
+  "bpm": 73,
+  "key": "C",
+  "referenceBpm": "約 73",
+  "referenceKey": "C",
+  "note": "兩個逐曲分析約 73，補 BPM 與 C 大調；部分片源有倍速分析，仍應對照伴奏。",
+  "sources": [
+   "https://chordify.net/chords/chen-yi-xun-songs/hao-jiu-bu-jian-chords",
+   "https://chordu.com/chords-tabs-陳奕迅-好久不見-hq-id_7zAoKvMkKO8"
+  ]
+ },
+ {
+  "title": "思念",
+  "artist": "黃宣",
+  "bpm": null,
+  "key": "",
+  "referenceBpm": "71 / 85",
+  "referenceKey": "G（歌手2024）",
+  "note": "歌手2024片源分析71、編譜85，BPM有實質分歧；須確認演出版本，暫留空。",
+  "sources": [
+   "https://www.qinhun.com/pu/80082.html",
+   "https://www.guitarworld.com.cn/pu/q94251",
+   "https://chordify.net/chords/ge-shou2024-di-san-qi-chun-xiang-banyellow-huang-xuan-si-nian-singer-2024-third-issue-yellow-huang-xuan-missing-hu-nan-guo-ji-p"
+  ]
+ },
+ {
+  "title": "消愁",
+  "artist": "毛不易",
+  "bpm": 112,
+  "key": "Fm",
+  "referenceBpm": "112 / 56（MV分析約111）",
+  "referenceKey": "Fm",
+  "note": "2018《平凡的一天》4:21專輯及伴奏版皆112、Fm；補112與Fm。MV分析111是小幅估測差異。",
+  "sources": [
+   "https://chordify.net/chords/mao-bu-yi-songs/xiao-chou-chords",
+   "https://www.midishow.com/en/midi/75224.html",
+   "https://songdata.io/track/7x3WCjRe4YW0z6W1OxOvc1/-by-Mao-Buyi",
+   "https://songbpm.com/%40mao-buyi/xiao-chou-Ub5LwXMuRz",
+   "https://songbpm.com/%40mao-buyi/xiao-chou-ban-zou-ban"
+  ]
+ },
+ {
+  "title": "一程山路",
+  "artist": "毛不易",
+  "bpm": null,
+  "key": "",
+  "referenceBpm": "約69 / 138（2017 Live）",
+  "referenceKey": "F#（2017 Live候選）",
+  "note": "找到2017 Live約138.1／半速69；不同版本及原先編譜調性不同，需指定版本。",
+  "sources": [
+   "https://www.midishow.com/en/midi/225336.html",
+   "https://www.ukuleleba.com/23460.html",
+   "https://chordify.net/chords/mao-bu-yi-yi-cheng-shan-lu-ge-ci-wu-sun-yin-zhi-song-taste-music",
+   "https://trackify.am/track/5WY1CAZrYa6CE4CdnGQoCe/tempo"
+  ]
+ },
+ {
+  "title": "盛夏",
+  "artist": "毛不易",
+  "bpm": 62,
+  "key": "G",
+  "referenceBpm": "62 / 124",
+  "referenceKey": "G",
+  "note": "2018《平凡的一天》4:34專輯124、G，專輯對應逐曲分析62、G；採練唱半速62。",
+  "sources": [
+   "https://chordify.net/nl/chords/mao-bu-yi-songs/sheng-xia-chords",
+   "https://chordify.net/fr/chords/chn-en-pinyin-lyrics-midsummer-by-mao-buyi-mao-bu-yi-sheng-xia-zhong-ying-pin-yin-ge-ci-the-baby-bam",
+   "https://songdata.io/track/41rAj5KImICNXmY5yQ6eid/-by-Mao-Buyi",
+   "https://www.youtube.com/watch?v=yOLY3qz8F1Q"
+  ]
+ },
+ {
+  "title": "借",
+  "artist": "毛不易",
+  "bpm": null,
+  "key": "",
+  "referenceBpm": "75 / 77",
+  "referenceKey": "",
+  "note": "編曲版本不同，保留原 75。",
+  "sources": [
+   "https://www.ukuleleba.com/21939.html",
+   "https://chordify.net/chords/mao-bu-yi-songs/jie-chords"
+  ]
+ },
+ {
+  "title": "眼底星空",
+  "artist": "李聖傑",
+  "bpm": null,
+  "key": "Bb",
+  "referenceBpm": "79–81 / 159.6",
+  "referenceKey": "Bb",
+  "note": "兩份編譜與原專輯調性資料皆支持Bb，含轉調，補起始參考調；BPM79–81估測分歧，留空。",
+  "sources": [
+   "https://getsongbpm.com/song/yandixingkong/k5mQQY",
+   "https://kanpu8.com/chords2/the-starry-sky-in-your-eyes/",
+   "https://www.mymusic5.com/nicepianosheets/245319",
+   "https://getsongkey.com/song/yandixingkong/k5mQQY"
+  ]
+ },
+ {
+  "title": "如果我變成回憶",
+  "artist": "Tank",
+  "bpm": null,
+  "key": "D",
+  "referenceBpm": "66–67 / 132",
+  "referenceKey": "D",
+  "note": "主流資料庫 132，MV 對應分析 67；約半速但非精確一致，BPM 留空；D 大調一致。",
+  "sources": [
+   "https://songdata.io/track/ja/4ZihPLUkdHJZ9XVhxMeFTG/-by-TANK-",
+   "https://chordify.net/chords/tank-ru-guo-wo-bian-cheng-hui-yi-if-i-was-the-memory-official-mv-hua-yan-guo-ji"
+  ]
+ },
+ {
+  "title": "月牙灣",
+  "artist": "F.I.R.",
+  "bpm": 174,
+  "key": "",
+  "referenceBpm": "174 / 87",
+  "referenceKey": "D",
+  "note": "原專輯兩資料庫 174，一般半速可用 87；先填來源原值 174，非一律折半。",
+  "sources": [
+   "https://tunebat.com/Info/-F-I-R-/1b5IRT3iraxjHOsKZx93sW",
+   "https://getsongbpm.com/song/yueya/KrNkVG"
+  ]
+ },
+ {
+  "title": "眼色",
+  "artist": "林宥嘉",
+  "bpm": null,
+  "key": "",
+  "referenceBpm": "93 / 138",
+  "referenceKey": "Gm",
+  "note": "重點複核：不屬一般二倍速分歧，可能涉及三拍／複拍分析；BPM 留空。",
+  "sources": [
+   "https://getsongbpm.com/song/yanse/Y7oxop",
+   "https://chordu.com/chords-tabs-林宥嘉-yoga-lin-眼色-color-of-your-eyes-official-mv-id_AYpZWq05E_E"
+  ]
+ },
+ {
+  "title": "大人中",
+  "artist": "盧廣仲",
+  "bpm": null,
+  "key": "",
+  "referenceBpm": "105（2014專輯）",
+  "referenceKey": "Fm（資料庫）/ Eb（編譜）",
+  "note": "找到2014專輯4:42、105，但仍缺同版本第二份速度證據；Key與編譜不合，兩欄均暫留空。",
+  "sources": [
+   "https://songbpm.com/%40crowd-lu/da-ren-zhong---da-ren-zhong-yan-chang-hui-live",
+   "https://tunebat.com/Info/-LIVE-Crowd-Lu/4xRr9fa3RB2FsTUCfLSRme",
+   "https://songdata.io/track/2JJu8J1kvXs2GbUpQVbZ47/-by-Crowd-Lu",
+   "https://kanpu8.com/chords/adult/"
+  ]
+ },
+ {
+  "title": "美人魚",
+  "artist": "林俊傑",
+  "bpm": 95,
+  "key": "",
+  "referenceBpm": "95",
+  "referenceKey": "",
+  "note": "兩分析相符，保留 95。",
+  "sources": [
+   "https://getsongbpm.com/song/meiren/qx4qmy",
+   "https://chordu.com/chords-tabs-林俊傑-jj-lin-美人魚-mermaid-官方完整版-mv-id_jdf3gxFP0F8"
+  ]
+ },
+ {
+  "title": "逆時光的浪",
+  "artist": "畢書盡",
+  "bpm": 78,
+  "key": "Ab",
+  "referenceBpm": "78 / 156",
+  "referenceKey": "Ab",
+  "note": "兩來源相差精確二倍，填較慢拍點 78；Key 一致為 Ab 大調。",
+  "sources": [
+   "https://songbpm.com/%40bii/ni-shi-guang-de-lang",
+   "https://chordu.com/chords-tabs-畢書盡-bii-逆時光的浪-back-in-time-官方版mv-台視-三立-東森偶像劇-愛上哥們-前導篇-逆光-主題曲-id_jbtU1rWNbmc"
+  ]
+ },
+ {
+  "title": "誰",
+  "artist": "廖俊濤",
+  "bpm": null,
+  "key": "",
+  "referenceBpm": "71（Live）",
+  "referenceKey": "G（Live）",
+  "note": "Live逐曲分析71、G，編譜也標G；但歌單未指定Live或其他錄音，保留待確認。",
+  "sources": [
+   "https://chordify.net/chords/liao-jun-tao-shui-mv-liaojuntao-liao-jun-tao-fans-channel",
+   "https://kanpu8.com/chords/who-live/"
+  ]
+ },
+ {
+  "title": "下雨的晚上",
+  "artist": "黃玠",
+  "bpm": null,
+  "key": "D",
+  "referenceBpm": "128 / 64；另片源67",
+  "referenceKey": "D",
+  "note": "資料庫及編譜皆D，補參考調性；BPM128與另一片源67非精確倍速，留空。",
+  "sources": [
+   "https://songbpm.com/%40dadado-huang",
+   "https://chord4.com/zh-hant/tabs/1315",
+   "https://chordify.net/chords/huang-jie-xia-yu-de-wan-shang-yi-qi-zhui-xing-qu-party-star-media"
+  ]
+ },
+ {
+  "title": "讓我留在你身邊",
+  "artist": "陳奕迅",
+  "bpm": null,
+  "key": "Db → D",
+  "referenceBpm": "85–86 / 170",
+  "referenceKey": "Db → D",
+  "note": "MV 分析、教學譜有細微 BPM 差異，先不填 BPM；起始 Db、後轉 D 有兩教學來源支持。",
+  "sources": [
+   "https://kanpu8.com/chords/stay-with-you/",
+   "https://www.youtube.com/watch?v=o-ZtUeaCclo",
+   "https://chordify.net/chords/chen-yi-xun-songs/rang-wo-liu-zai-ni-shen-bian-chords"
+  ]
+ },
+ {
+  "title": "這是你期盼的長大嗎",
+  "artist": "ZQS",
+  "bpm": null,
+  "key": "",
+  "referenceBpm": "未確認",
+  "referenceKey": "",
+  "note": "搜尋只找到歌詞頁且 BPM 為 N/A，留空。",
+  "sources": [
+   "https://tfaparty.com/lyrics/zqs-nlYskBsMbmE"
+  ]
+ },
+ {
+  "title": "離開的一路上",
+  "artist": "理想混蛋",
+  "bpm": 126,
+  "key": "",
+  "referenceBpm": "126",
+  "referenceKey": "D / C",
+  "note": "兩資料庫 BPM 一致，補 126；調性譜面與資料庫不同，不填 Key。",
+  "sources": [
+   "https://songdata.io/track/1NoDTQhJsrd5rnpb6PQthK/-by-",
+   "https://www.snaplyrics.com/song/-1NoDTQhJ-bpm-key",
+   "https://realsound.ddns.net/farewell0006/"
+  ]
+ },
+ {
+  "title": "不是因為天氣晴朗才愛你",
+  "artist": "理想混蛋",
+  "bpm": 68,
+  "key": "",
+  "referenceBpm": "68 / 136",
+  "referenceKey": "Ab",
+  "note": "譜面 68 與資料庫 136 精確倍速，填 68；Key 目前單一編譜，留空。",
+  "sources": [
+   "https://songbpm.com/%40li-xiang-hun-dan/bu-shi-yin-wei-tian-qi-qing-lang-cai-ai-ni",
+   "https://chord4.com/zh-hant/tabs/35618"
+  ]
+ },
+ {
+  "title": "終於說出口",
+  "artist": "宋念宇",
+  "bpm": null,
+  "key": "Bb",
+  "referenceBpm": "135–136；另分析150",
+  "referenceKey": "Bb",
+  "note": "原專輯4:07資料庫136、Bb，原專輯另一站135；排除150仍需點拍，BPM先留空。Bb有編譜與資料支持。",
+  "sources": [
+   "https://getsongbpm.com/song/yu-chukou/66WkQQ",
+   "https://chordu.com/chords-tabs-小宇-宋念宇-終於說出口-高音質-x-動態歌詞-lyrics-♪-sdpmusic-♪-id_vO0nJL0JOAw",
+   "https://songbpm.com/%40xiao-yu/zhong-yu-shuo-chu-kou",
+   "https://www.youtube.com/watch?v=7QNU5MlemQY"
+  ]
+ },
+ {
+  "title": "魚",
+  "artist": "怕胖團",
+  "bpm": 97,
+  "key": "E",
+  "referenceBpm": "97 / 97.15",
+  "referenceKey": "E",
+  "note": "採譜速度97、原調E，MV逐曲分析97.15，官方教學和弦可交叉核對；補97、E。",
+  "sources": [
+   "https://chordu.com/chords-tabs-怕胖團papun-band-魚-music-video-id_Dnz-BTz9eDU",
+   "https://www.youtube.com/watch?v=-QrOY7AOS5I",
+   "https://kanpu8.com/chords/fish-papun/"
+  ]
+ },
+ {
+  "title": "誰",
+  "artist": "李友廷",
+  "bpm": null,
+  "key": "",
+  "referenceBpm": "124 / 129 / 135",
+  "referenceKey": "Db（專輯資料）",
+  "note": "查到2018 EP與2020專輯，速度來源124／129／135有實質分歧，需版本或音訊；暫留空。",
+  "sources": [
+   "https://songbpm.com/%40li-you-ting/shui",
+   "https://songdata.io/track/4RPf2UXrxPXykrCh5owBtz/-by-Yo-Lee",
+   "https://open.spotify.com/track/2UcgToLQiO8Lh76FQwtWbq"
+  ]
+ },
+ {
+  "title": "想你的習慣",
+  "artist": "宋念宇",
+  "bpm": null,
+  "key": "Bb",
+  "referenceBpm": "132（原聲帶資料）/ 130 / 150",
+  "referenceKey": "Bb",
+  "note": "原聲帶4:12–4:13資料庫132，片源分析130與150衝突；BPM留空。Bb與逐曲和弦分析一致，可補參考調性。",
+  "sources": [
+   "https://chordify.net/fr/chords/xiao-yu-songs/xiang-ni-de-xi-guan-chords",
+   "https://chordu.com/chords-tabs-宋念宇-小宇-想你的習慣-電視劇-蜂蜜幸運草-主題曲-歌詞版-id_tIYhGYuLQ1w",
+   "https://songbpm.com/%40xiao-yu/xiang-ni-de-xi-guan-UhjkgVnkL-",
+   "https://music.apple.com/us/album/蜂蜜幸運草-電視原聲帶/843682669"
+  ]
+ },
+ {
+  "title": "Fix You",
+  "artist": "Coldplay",
+  "bpm": 69,
+  "key": "",
+  "referenceBpm": "69 / 138",
+  "referenceKey": "Eb",
+  "note": "原 69 為 138 的半速，保留；本輪 Key 證據僅一站，不填。",
+  "sources": [
+   "https://earchords.com/fix-you-chords/"
+  ]
+ },
+ {
+  "title": "ひまわりの約束",
+  "artist": "秦基博",
+  "bpm": 79,
+  "key": "Bb",
+  "referenceBpm": "79",
+  "referenceKey": "Bb",
+  "note": "原唱和弦譜明示Bb，單曲表速度79與原值相符。",
+  "sources": [
+   "https://bpm-database.tokyo/album/C1AiL3ho",
+   "https://ja.chordwiki.org/wiki/ひまわりの約束"
+  ]
+ },
+ {
+  "title": "Planet",
+  "artist": "ラムジ",
+  "bpm": 106,
+  "key": "",
+  "referenceBpm": "約106（編譜107）",
+  "referenceKey": "E / C#m",
+  "note": "2006單曲表106，官方Lyric Video對應分析105.8，補106；E大調／C#小調為關係調判讀，Key暫不填。",
+  "sources": [
+   "https://bpm-database.tokyo/music/i8gsvuZJ",
+   "https://ja.chordwiki.org/wiki/PLANET+(ラムジ)",
+   "https://chordu.com/chords-tabs-ラムジ-lambsey-planet-lyric-video-id_p3V8-bBsN2U"
+  ]
+ },
+ {
+  "title": "さよならエレジー",
+  "artist": "菅田将暉",
+  "bpm": 155,
+  "key": "",
+  "referenceBpm": "155",
+  "referenceKey": "",
+  "note": "與歌曲分析、資料庫相符。",
+  "sources": [
+   "https://keytube.net/song/detail/152",
+   "https://bpm-database.tokyo/music/TDUhuoDO"
+  ]
+ },
+ {
+  "title": "カブトムシ",
+  "artist": "aiko",
+  "bpm": 74,
+  "key": "Eb",
+  "referenceBpm": "74",
+  "referenceKey": "Eb",
+  "note": "原唱和弦譜明示Eb、74，補參考調性，保留原BPM。",
+  "sources": [
+   "https://ja.chordwiki.org/wiki/カブトムシ"
+  ]
+ },
+ {
+  "title": "しわあわせ",
+  "artist": "Vaundy",
+  "bpm": 80,
+  "key": "F",
+  "referenceBpm": "80 / 161",
+  "referenceKey": "F",
+  "note": "原專輯資料及第二站皆80、F，補參考調性；161近似倍速，原80維持。",
+  "sources": [
+   "https://tunebat.com/Info/-Vaundy/4GvJskA0Jn4NorP2YWxuaf",
+   "https://utastep.com/songs/shiwa-awase",
+   "https://keytube.net/song/detail/54111",
+   "https://planetary.music/song-analysis/vaundy/しわあわせ"
+  ]
+ }
+];
+/* RESEARCH_DATA_END */
 
 /* ---------- storage ---------- */
 let songs = [];
@@ -261,7 +1160,9 @@ const seedObj=(r,i)=>blank({title:r[0],artist:r[1],lang:r[2],genre:r[3],bpm:r[4]
 function mergeSeed(){ // fill in researched info without overwriting the user's own edits
   const used=new Set();
   SEED.forEach(r=>{
-    const s=songs.find(x=>!used.has(x)&&(x.title===r[0]||(r[7]&&x.title===r[7])));
+    const candidates=songs.filter(x=>!used.has(x)&&(x.title===r[0]||(r[7]&&x.title===r[7])));
+    const sameArtist=x=>String(x.artist||"").normalize("NFKC").trim().toLowerCase()===r[1].normalize("NFKC").trim().toLowerCase();
+    const s=candidates.find(sameArtist)||(candidates.length===1&&(!candidates[0].artist||(r[0]==="魚"&&candidates[0].artist==="陳綺貞"))?candidates[0]:null);
     if(!s)return; used.add(s);
     if(r[7]&&s.title===r[7]){s.title=r[0];s.lang=r[2]}
     if(!s.artist||(s.title==="魚"&&s.artist==="陳綺貞"))s.artist=r[1];
@@ -278,6 +1179,48 @@ async function load(){
   songs=SEED.map(seedObj);
 }
 function blank0(o){return blank(o)}
+
+/* ---------- reviewed metadata: user applies blank-field updates ---------- */
+const metadataIdentity=s=>[s.title,s.artist].map(x=>String(x||"").normalize("NFKC").trim().toLowerCase().replace(/\s+/g," ")).join("\u0000");
+const emptyMetadata=v=>v==null||(typeof v==="string"&&!v.trim());
+const researchFor=s=>RESEARCH.find(r=>metadataIdentity(r)===metadataIdentity(s));
+function metadataPlan(list){
+  const counts=new Map();for(const s of list){const key=metadataIdentity(s);counts.set(key,(counts.get(key)||0)+1)}
+  return list.flatMap((s,index)=>{
+    if(counts.get(metadataIdentity(s))!==1)return [];
+    const r=researchFor(s);if(!r)return [];
+    const changes={};
+    if(emptyMetadata(s.bpm)&&Number.isFinite(r.bpm)&&r.bpm>0)changes.bpm=r.bpm;
+    if(emptyMetadata(s.key)&&r.key)changes.key=r.key;
+    return Object.keys(changes).length?[{index,title:s.title,artist:s.artist,changes}]:[];
+  });
+}
+function renderMetadata(){
+  const plan=metadataPlan(songs),fields=plan.reduce((n,p)=>n+Object.keys(p.changes).length,0);
+  $("#metadataSummary").textContent=`歌曲資料補充 · 可補 ${plan.length} 首、${fields} 個空欄`;
+  $("#metadataPreview").innerHTML=plan.length?`<ul class="metadata-items">${plan.map(p=>`<li>${esc(p.title)} · ${esc(p.artist)}：${Object.entries(p.changes).map(([k,v])=>`${k==="bpm"?"BPM":"Key"} ${esc(String(v))}`).join("、")}</li>`).join("")}</ul>`:'<p>目前沒有可直接補齊的空欄。資料有分歧的歌曲會保留空白。</p>';
+  $("#applyMetadata").disabled=!plan.length;
+  const missingBpm=songs.filter(s=>emptyMetadata(s.bpm)).length-plan.filter(p=>"bpm" in p.changes).length;
+  const missingKey=songs.filter(s=>emptyMetadata(s.key)).length-plan.filter(p=>"key" in p.changes).length;
+  $("#metadataPending").textContent=`${plan.length?"補齊後，":""}仍有 ${missingBpm} 首 BPM、${missingKey} 首 Key 需要確認來源或版本。`;
+  let hasBackup=false;try{hasBackup=!!localStorage.getItem(KEY+".metadata-backup")}catch(_){}
+  $("#downloadMetadataBackup").hidden=!hasBackup;
+}
+function applyReviewedMetadata(){
+  const plan=metadataPlan(songs);if(!plan.length)return;
+  const next=songs.map(s=>({...s}));for(const p of plan)Object.assign(next[p.index],p.changes);
+  // Backup must succeed before writing any updated song data. Keep memory intact on failure.
+  try{
+    localStorage.setItem(KEY+".metadata-backup",JSON.stringify({created:new Date().toISOString(),songs}));
+    localStorage.setItem(KEY,JSON.stringify(next));
+  }catch(e){renderMetadata();toast("無法儲存，尚未更新歌曲。請先匯出備份並確認瀏覽器儲存空間。");return}
+  songs=next;renderHome();toast(`已補齊 ${plan.length} 首的空白資料；原有內容已保留`);
+}
+function researchInfoHTML(s){
+  const r=researchFor(s);if(!r)return "";
+  const sources=r.sources.filter(u=>/^https:\/\//.test(u));
+  return `<details class="research-note"><summary>資料核對 · BPM／Key 參考</summary><p>BPM：${esc(r.referenceBpm)}<br>參考調性：${esc(r.referenceKey||"待確認")}</p><p>${esc(r.note)}</p><p>目前填寫的 BPM 與 Key 會保留；參考原調不代表個人練唱調。</p><div class="links">${sources.map((u,i)=>`<a href="${esc(u)}" target="_blank" rel="noopener">來源 ${i+1}</a>`).join(" · ")}</div></details>`;
+}
 
 /* ---------- ui state ---------- */
 let groupBy = "lang", query = "";
@@ -340,6 +1283,7 @@ function listHTML(arr){
 }
 function renderHome(){
   renderSegs();
+  renderMetadata();
   const f=filtered();
   $("#sectionSwitch").innerHTML=SECTIONS.map(([key,label,id])=>{
     const count=f.filter(s=>sectionOf(s)===key).length;
@@ -457,7 +1401,7 @@ async function renderDetail(){
   $("#editBtn").textContent=editing?"完成":"編輯";
   const info=[LANG[s.lang],s.genre||"未分類",s.bpm?s.bpm+" BPM · "+tempo(s.bpm).replace(/（.*）/,""):"未填 BPM",s.key?"Key "+s.key:"",({done:"已練",practicing:"練習中",base:"基礎"})[s.status]||"待練"].filter(Boolean);
   let h=`<h1 class="dtitle">${esc(s.title)}</h1><p class="dartist">${esc(s.artist||"未填歌手")}</p>
-  <div class="info">${info.map(t=>`<span class="tag">${esc(t)}</span>`).join("")}</div>${s.note?`<div class="note">${esc(s.note)}</div>`:""}${searchLinks(s)}`;
+  <div class="info">${info.map(t=>`<span class="tag">${esc(t)}</span>`).join("")}</div>${s.note?`<div class="note">${esc(s.note)}</div>`:""}${searchLinks(s)}${researchInfoHTML(s)}`;
   if(editing){
     h+=`<div class="editor">
       <div class="row">
@@ -558,6 +1502,16 @@ document.addEventListener("click",e=>{
   const v=e.target.closest("#dbody [data-v]"); if(v&&cur){view[v.dataset.v]=!view[v.dataset.v];renderDetail();return}
 });
 $("#q").addEventListener("input",e=>{query=e.target.value;renderHome()});
+$("#reviewMetadata").onclick=()=>{renderMetadata();$("#metadataReview").open=true;$("#metadataReview").scrollIntoView({behavior:"smooth",block:"start"})};
+$("#applyMetadata").onclick=applyReviewedMetadata;
+$("#downloadMetadataBackup").onclick=()=>{
+  try{
+    const backup=JSON.parse(localStorage.getItem(KEY+".metadata-backup")||"null");
+    if(!backup||!Array.isArray(backup.songs))throw Error();
+    const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify(backup.songs,null,1)],{type:"application/json"}));
+    a.download="songs_before_metadata_"+backup.created.slice(0,10)+".json";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+  }catch(_){toast("讀不到更新前備份，請使用一般匯出功能備份目前歌單")}
+};
 $("#back").onclick=closeSong;
 $("#editBtn").onclick=()=>{if(editing){saveEdit()}else{editing=true;renderDetail()}};
 $("#statusSel").onchange=e=>{cur.status=e.target.value;save();renderDetail();toast("已移到「"+({done:"已練",practicing:"練習中",base:"基礎",todo:"待練"})[cur.status]+"」")};
