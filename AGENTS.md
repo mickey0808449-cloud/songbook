@@ -10,9 +10,8 @@ Jen 上歌唱課用的個人歌單網頁。純靜態單一檔案，部署在 Git
 
 1. **維持單一檔案**：不要拆檔、不要加打包工具、不要加框架。外部函式庫只用 CDN `<script>`。
 2. **不要覆蓋使用者資料**：歌曲資料存在使用者瀏覽器的 localStorage。改 `SEED` 時一定要把 `DATA_VER` +1，由 `mergeSeed()` 只補「空白欄位」與改名，不可整批覆寫。
-3. **不要放入任何歌詞內容**（版權）。歌詞由 Jen 自己貼，網頁只提供搜尋連結（`searchLinks()`）。
-4. 介面文字一律繁體中文。
-5. 改完先用瀏覽器本機開 `index.html` 測試，再 commit / push；Pages 約 1 分鐘生效。
+3. 介面文字一律繁體中文。
+4. 改完先用瀏覽器本機開 `index.html` 測試，再 commit / push；Pages 約 1 分鐘生效。
 
 ## 資料結構
 
@@ -35,7 +34,7 @@ Jen 上歌唱課用的個人歌單網頁。純靜態單一檔案，部署在 Git
 ### SEED（預設歌單）
 每列格式：`[title, artist, lang, genre, bpm, status, note, oldTitle]`
 - `oldTitle`：舊名（錯字修正用），`mergeSeed()` 會把使用者資料中的舊名改成新名。
-- 改 SEED → `DATA_VER` +1（目前是 8）。
+- 改 SEED → `DATA_VER` +1（目前是 11）。
 
 ### 載入流程
 `load()` → 讀 localStorage → 舊格式用 `combineOld()` 轉換 → 若存的版本 < `DATA_VER` 就跑 `mergeSeed()` → `save()`。
@@ -78,15 +77,16 @@ html2canvas 1.4.1 + jsPDF 2.5.1（cdnjs）。離螢幕產生 A4 頁面（794×11
 
 ## 待辦
 
-- 已將 65 首的 BPM（抒情／慢歌採半速拍點，指定搖滾／快歌維持原速）、Key 與〈500W〉風格（流行）全數補齊，`DATA_VER` 改為 8。
+- 已將 70 首的 BPM（抒情／慢歌採半速拍點，指定搖滾／快歌維持原速）、Key、風格與完整歌詞全數內嵌並補齊，`DATA_VER` 改為 11。
 - 逐曲來源與判讀見 `research/核對說明.md`。
 
 ## 查核資料與安全補齊
 
-- `research/bpm-key-audit.json`：65 首逐曲來源、候選值與核准補充值；不含歌詞。
-- `research/songs-reviewed.json`：以 Jen 提供的 2026-11-17 匯出檔為基準的完整補充檔（不含歌詞）；完整含歌詞檔存放於本機供手動匯入，不進公開 GitHub repo。
-- 網站 `RESEARCH` 內嵌參考資料，維持 `index.html` 單檔可用。執行 `node research/update-metadata.cjs` 重建查核文件、補充 JSON 與內嵌資料。
-- 「補齊歌曲資料」先列預覽，再由使用者按「補齊空白資料」套用（或選「從 JSON 補齊空欄（含歌詞）」匯入本機含歌詞 JSON，只補空白欄位而不覆蓋既有修改）。以歌名＋歌手配對，同名同歌手有重複時跳過。
+- `research/bpm-key-audit.json`：70 首逐曲來源、候選值與核准補充值。
+- `research/lyrics.json`：70 首歌詞（日文：中日對照、英文：中英對照、中文：中文）。
+- `research/songs-reviewed.json`：完整 70 首補充檔（含歌詞）。
+- 網站 `RESEARCH` 內嵌完整參考資料（含歌詞），維持 `index.html` 單檔可用。執行 `node research/update-metadata.cjs` 重建查核文件、補充 JSON 與內嵌資料。
+- 頁面載入時若 `ver < DATA_VER`，`mergeSeed()` 會自動補齊空白的歌手、BPM、Key、風格與歌詞；或由使用者點「補齊歌曲資料」→「補齊空白資料」套用。以歌名＋歌手配對，同名同歌手有重複時跳過。
 - 寫入前以 `songbook.v1.metadata-backup` 留存更新前完整歌單，可下載 JSON；儲存失敗不得改動記憶體歌單。不要自動套用參考值覆蓋既有資料。
 - 每首歌可展開「資料核對」查看來源與分歧；參考 Key 不代表 Jen 個人適合的演唱調。
 - 驗證：`node tests/metadata.cjs`；瀏覽器測試檔可用 `node tests/browser-fixture.cjs <輸出HTML路徑>` 產生，請使用隔離測試設定檔，勿操作真實瀏覽器資料。

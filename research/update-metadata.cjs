@@ -1,7 +1,7 @@
-// Rebuild review artifacts and the embedded, read-only reference data. No lyrics.
+// Rebuild review artifacts and the embedded reference data (including lyrics).
 const fs=require('fs'),path=require('path'),assert=require('assert');
 const here=__dirname,read=n=>JSON.parse(fs.readFileSync(path.join(here,n),'utf8'));
-const audit=read('bpm-key-audit.json'),songs=read('songs-reviewed.json');
+const audit=read('bpm-key-audit.json'),songs=read('songs-reviewed.json'),lyricsMap=read('lyrics.json');
 const patch=(i,changes,urls=[])=>{Object.assign(audit[i],changes);audit[i].sources=[...new Set([...audit[i].sources,...urls])];};
 patch(0,{reference_key:'Ab',output_key:'Ab',assessment:'原唱和弦譜明示 Ab 大調，補參考調性；複拍子保留原 BPM 62。'},['https://ja.chordwiki.org/wiki/メリーゴーランド（優里）']);
 patch(2,{reference_key:'Eb → Gb',output_key:'Eb → Gb',assessment:'主歌 Eb 大調、副歌轉 Gb 大調，補參考調性；BPM 96 相符。'},['https://ja.chordwiki.org/wiki/幾億光年（Omoinotake）']);
@@ -66,17 +66,18 @@ for(let i=0;i<audit.length;i++){
  const a=audit[i],s=songs[i];assert.equal(a.title,s.title);assert.equal(a.artist,s.artist);
  s.bpm=a.output_bpm;s.key=a.output_key;
  if(a.output_genre)s.genre=a.output_genre;
+ if(lyricsMap[String(i)])s.lyrics=lyricsMap[String(i)];
 }
 for(const name of ['bpm-key-audit.json','songs-reviewed.json'])fs.writeFileSync(path.join(here,name),JSON.stringify(name.startsWith('bpm')?audit:songs,null,2)+'\n');
 const filledBpm=audit.filter(a=>a.original_bpm==null&&a.output_bpm!=null).length,filledKey=songs.filter(s=>s.key).length;
 const pending=audit.filter(a=>!a.output_bpm||!a.output_key);
-const text=['# 歌單 BPM／Key 核對與更新','',`基準：Jen 提供的歌單（含〈水平線〉共 ${songs.length} 首）。累計補 ${filledBpm} 首 BPM、${filledKey} 首 Key，〈500W〉風格補為「流行」。目前 ${songs.length} 首的 BPM、Key、風格已全數補齊（缺 BPM ${songs.filter(s=>!s.bpm).length} 首、缺 Key ${songs.length-filledKey} 首）。`,'',
-'網站「補齊空白資料」功能按歌名＋歌手精確配對，補齊空欄（BPM、Key、風格）並將高於 100 的倍速 BPM 折半為半速拍點。已有的狀態、備註、歌詞都保留。更新前會在同一瀏覽器儲存備份，可下載。歌曲詳細頁可展開來源與說明。', '',
-'BPM 統一採練唱半速拍點。Key 為參考原曲調性，不是個人演唱移調。','',
+const text=['# 歌單 BPM／Key 核對與更新','',`基準：Jen 提供的歌單（含〈水平線〉等共 ${songs.length} 首）。累計補 ${filledBpm} 首 BPM、${filledKey} 首 Key，〈500W〉風格補為「流行」。目前 ${songs.length} 首的 BPM、Key、風格與歌詞已全數補齊（缺 BPM ${songs.filter(s=>!s.bpm).length} 首、缺 Key ${songs.length-filledKey} 首）。`,'',
+'網站「補齊空白資料」與自動升級功能按歌名＋歌手精確配對，補齊空欄（歌手、BPM、Key、風格、歌詞）。已有的狀態、備註、修改都會保留。更新前會在同一瀏覽器儲存備份，可下載。歌曲詳細頁可展開來源與說明。', '',
+'BPM 統一採練唱半速拍點（指定搖滾／快歌維持原速）。Key 為參考原曲調性，不是個人演唱移調。','',
 '## 逐首資料與來源','', '| 歌曲／歌手 | 原 BPM → 補充檔 | BPM候選 | 參考Key | 判讀與來源 |','|---|---|---|---|---|',...audit.map(a=>`| ${a.title}／${a.artist} | ${a.original_bpm??'空白'} → ${a.output_bpm??'空白'} | ${a.reference_bpm} | ${a.reference_key||'未確認'} | ${a.assessment} ${a.sources.map((url,i)=>`[來源${i+1}](${encodeURI(url)})`).join(' ')} |`),''];
 fs.writeFileSync(path.join(here,'核對說明.md'),text.join('\n'));
-// Embed approved fills: all 65 songs now have approved half-time BPM, Key, and Genre.
-const embedded=audit.map((a,i)=>({title:a.title,artist:a.artist,bpm:a.output_bpm,key:a.output_key,genre:songs[i].genre,referenceBpm:a.reference_bpm,referenceKey:a.reference_key,note:a.assessment,sources:a.sources}));
+// Embed approved fills: all songs now have approved BPM, Key, Genre, and Lyrics.
+const embedded=audit.map((a,i)=>({title:a.title,artist:a.artist,bpm:a.output_bpm,key:a.output_key,genre:songs[i].genre,lyrics:songs[i].lyrics||"",referenceBpm:a.reference_bpm,referenceKey:a.reference_key,note:a.assessment,sources:a.sources}));
 const app=path.join(here,'../index.html');let html=fs.readFileSync(app,'utf8');
 const seedLines=audit.map((a,i)=>{
  const s=songs[i];
@@ -86,7 +87,7 @@ const seedLines=audit.map((a,i)=>{
  if(oldTitles[a.title])row.push('',oldTitles[a.title]);
  return ' '+JSON.stringify(row);
 });
-html=html.replace(/const SEED = \[[\s\S]*?\];\r?\nconst DATA_VER = \d+;/,'const SEED = [\n // [title, artist, lang, genre, bpm, status, note, oldTitle]\n'+seedLines.join(',\n')+'\n];\nconst DATA_VER = 10;');
+html=html.replace(/const SEED = \[[\s\S]*?\];\r?\nconst DATA_VER = \d+;/,'const SEED = [\n // [title, artist, lang, genre, bpm, status, note, oldTitle]\n'+seedLines.join(',\n')+'\n];\nconst DATA_VER = 11;');
 const data='/* RESEARCH_DATA_START */\nconst RESEARCH = '+JSON.stringify(embedded,null,1)+';\n/* RESEARCH_DATA_END */';
 if(html.includes('/* RESEARCH_DATA_START */'))html=html.replace(/\/\* RESEARCH_DATA_START \*\/[\s\S]*?\/\* RESEARCH_DATA_END \*\//,data);
 else html=html.replace('/* ---------- storage ---------- */',data+'\n\n/* ---------- storage ---------- */');
