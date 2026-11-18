@@ -1593,6 +1593,91 @@ function getKuro(){
   return kuroP;
 }
 const furiCache=new Map(), romaCache=new Map();
+// Lyric-specific pronunciation dictionary (overrides kuromoji mistakes on common J-pop readings & digits)
+const JA_READINGS=[
+  ["絵に描いた","えにかいた",[["絵","え"],["に",""],["描","か"],["いた",""]]],
+  ["400円","よんひゃくえん",[["400","よんひゃく"],["円","えん"]]],
+  ["100億","ひゃくおく",[["100","ひゃく"],["億","おく"]]],
+  ["50年","ごじゅうねん",[["50","ごじゅう"],["年","ねん"]]],
+  ["50億","ごじゅうおく",[["50","ごじゅう"],["億","おく"]]],
+  ["2億","におく",[["2","に"],["億","おく"]]],
+  ["3月","さんがつ",[["3","さん"],["月","がつ"]]],
+  ["1秒","いちびょう",[["1","いち"],["秒","びょう"]]],
+  ["1から","いちから",[["1","いち"],["から",""]]],
+  ["一人","ひとり",[["一人","ひとり"]]],
+  ["1人","ひとり",[["1人","ひとり"]]],
+  ["二人","ふたり",[["二人","ふたり"]]],
+  ["2人","ふたり",[["2人","ふたり"]]],
+  ["赤黄藍色","あかきあいいろ",[["赤黄藍色","あかきあいいろ"]]],
+  ["藍色","あいいろ",[["藍色","あいいろ"]]],
+  ["響めき","どよめき",[["響","どよ"],["めき",""]]],
+  ["煌めき","きらめき",[["煌","きら"],["めき",""]]],
+  ["僕等","ぼくら",[["僕等","ぼくら"]]],
+  ["何処","どこ",[["何処","どこ"]]],
+  ["如何","どう",[["如何","どう"]]],
+  ["明後日","あさって",[["明後日","あさって"]]],
+  ["明日","あした",[["明日","あした"]]],
+  ["今日","きょう",[["今日","きょう"]]],
+  ["木の葉","このは",[["木の葉","このは"]]],
+  ["行方","ゆくえ",[["行方","ゆくえ"]]],
+  ["未だ","いまだ",[["未だ","いまだ"]]],
+  ["上手","うま",[["上手","うま"]]],
+  ["辛い","つらい",[["辛","つら"],["い",""]]],
+  ["辛いや","つらいや",[["辛","つら"],["いや",""]]],
+  ["傍に","そばに",[["傍","そば"],["に",""]]],
+  ["側で","そばで",[["側","そば"],["で",""]]],
+  ["余所に","よそに",[["余所","よそ"],["に",""]]],
+  ["歳を","としを",[["歳","とし"],["を",""]]],
+  ["零さ","こぼさ",[["零","こぼ"],["さ",""]]],
+  ["呟い","つぶやい",[["呟","つぶや"],["い",""]]],
+  ["掠れ","かすれ",[["掠","かす"],["れ",""]]],
+  ["躊躇う","ためらう",[["躊躇","ためら"],["う",""]]],
+  ["離れ難い","はなれがたい",[["離","はな"],["れ",""],["難","がた"],["い",""]]],
+  ["希望（ひかり）","ひかり",[["希望","ひかり"]]],
+  ["希望(ひかり)","ひかり",[["希望","ひかり"]]],
+  ["居なかった","いなかった",[["居","い"],["なかった",""]]],
+  ["居ない","いない",[["居","い"],["ない",""]]],
+  ["居る","いる",[["居","い"],["る",""]]],
+  ["居て","いて",[["居","い"],["て",""]]],
+  ["向こう側","むこうがわ",[["向","む"],["こう",""],["側","がわ"]]],
+  ["対の","ついの",[["対","つい"],["の",""]]],
+  ["遺る瀬無さ","やるせなさ",[["遺る瀬無","やるせな"],["さ",""]]],
+  ["弓張り月","ゆみはりづき",[["弓張り月","ゆみはりづき"]]],
+  ["起きがけ","おきがけ",[["起","お"],["きがけ",""]]],
+  ["靄","もや",[["靄","もや"]]],
+  ["佇ん","たたずん",[["佇","たたず"],["ん",""]]]
+];
+// Parse inline manual overrides `漢字(かな)` or `漢字（かな）`, plus JA_READINGS dictionary
+function splitJaOverrides(line){
+  const parts=[];let i=0;
+  // First check explicit inline ruby like 描(か) or 希望（ひかり）
+  const re=/([一-鿿㐀-䶿々〆0-9０-９]+)[（(]([ぁ-んァ-ヶー]+)[）)]/g;
+  let m,last=0;
+  const rawSegs=[];
+  while((m=re.exec(line))){
+    if(m.index>last)rawSegs.push({text:line.slice(last,m.index)});
+    rawSegs.push({fixed:[[m[1],m[2]]],kana:m[2]});
+    last=re.lastIndex;
+  }
+  if(last<line.length)rawSegs.push({text:line.slice(last)});
+  for(const seg of rawSegs){
+    if(seg.fixed){parts.push(seg);continue}
+    const s=seg.text;let pos=0,buf="";
+    while(pos<s.length){
+      let hit=null;
+      for(const r of JA_READINGS){
+        if(s.startsWith(r[0],pos)){hit=r;break}
+      }
+      if(hit){
+        if(buf){parts.push({text:buf});buf=""}
+        parts.push({fixed:hit[2],kana:hit[1]});
+        pos+=hit[0].length;
+      }else{buf+=s[pos++]}
+    }
+    if(buf)parts.push({text:buf});
+  }
+  return parts;
+}
 function rubyToSpans(html){
   const t=document.createElement("template");t.innerHTML=html;let out="";
   t.content.childNodes.forEach(n=>{
@@ -1602,17 +1687,68 @@ function rubyToSpans(html){
     else out+=esc(n.textContent);
   });return out;
 }
-const hasKanji=s=>/[一-鿿㐀-䶿々〆]/.test(s);
+function fixedToSpans(pairs){
+  return pairs.map(([base,rt])=>rt?`<span class="rb"><span class="rt">${esc(rt)}</span>${esc(base)}</span>`:esc(base)).join("");
+}
+const hasKanji=s=>/[一-鿿㐀-䶿々〆0-9０-９]/.test(s);
 async function furi(line){
   if(!hasKanji(line))return esc(line);
   if(furiCache.has(line))return furiCache.get(line);
-  const k=await getKuro(); const h=rubyToSpans(await k.convert(line,{to:"hiragana",mode:"furigana"}));
+  const k=await getKuro();
+  const segs=splitJaOverrides(line);
+  let h="";
+  for(const seg of segs){
+    if(seg.fixed)h+=fixedToSpans(seg.fixed);
+    else if(hasKanji(seg.text))h+=rubyToSpans(await k.convert(seg.text,{to:"hiragana",mode:"furigana"}));
+    else h+=esc(seg.text);
+  }
   furiCache.set(line,h);return h;
+}
+// Fix kuromoji's sokuon (っ) bug where っ at the end of a token becomes "tsu" before the next consonant
+function kanaToHepburn(hira){
+  const dig={きゃ:"kya",きゅ:"kyu",きょ:"kyo",しゃ:"sha",しゅ:"shu",しょ:"sho",ちゃ:"cha",ちゅ:"chu",ちょ:"cho",にゃ:"nya",にゅ:"nyu",にょ:"nyo",ひゃ:"hya",ひゅ:"hyu",ひょ:"hyo",みゃ:"mya",みゅ:"myu",みょ:"myo",りゃ:"rya",りゅ:"ryu",りょ:"ryo",ぎゃ:"gya",ぎゅ:"gyu",ぎょ:"gyo",じゃ:"ja",じゅ:"ju",じょ:"jo",びゃ:"bya",びゅ:"byu",びょ:"byo",ぴゃ:"pya",ぴゅ:"pyu",ぴょ:"pyo",ふぁ:"fa",ふぃ:"fi",ふぇ:"fe",ふぉ:"fo",てぃ:"ti",でぃ:"di",うぃ:"wi",うぇ:"we",うぉ:"wo",ゔぁ:"va",ゔぃ:"vi",ゔぇ:"ve",ゔぉ:"vo",ちぇ:"che",しぇ:"she",じぇ:"je",つぁ:"tsa",つぃ:"tsi",つぇ:"tse",つぉ:"tso"};
+  const mon={あ:"a",い:"i",う:"u",え:"e",お:"o",か:"ka",き:"ki",く:"ku",け:"ke",こ:"ko",さ:"sa",し:"shi",す:"su",せ:"se",そ:"so",た:"ta",ち:"chi",つ:"tsu",て:"te",と:"to",な:"na",に:"ni",ぬ:"nu",ね:"ne",の:"no",は:"ha",ひ:"hi",ふ:"fu",へ:"he",ほ:"ho",ま:"ma",み:"mi",む:"mu",め:"me",も:"mo",や:"ya",ゆ:"yu",よ:"yo",ら:"ra",り:"ri",る:"ru",れ:"re",ろ:"ro",わ:"wa",を:"o",ん:"n",が:"ga",ぎ:"gi",ぐ:"gu",げ:"ge",ご:"go",ざ:"za",じ:"ji",ず:"zu",ぜ:"ze",ぞ:"zo",だ:"da",ぢ:"ji",づ:"zu",で:"de",ど:"do",ば:"ba",び:"bi",ぶ:"bu",べ:"be",ぼ:"bo",ぱ:"pa",ぴ:"pi",ぷ:"pu",ぺ:"pe",ぽ:"po",ぁ:"a",ぃ:"i",ぅ:"u",ぇ:"e",ぉ:"o",ゃ:"ya",ゅ:"yu",ょ:"yo",ゔ:"vu"};
+  const s=hira.replace(/[ァ-ヶ]/g,c=>String.fromCharCode(c.charCodeAt(0)-0x60))
+    .replace(/(^|\s)は(?=\s|$)/g,"$1わ")
+    .replace(/(^|\s)へ(?=\s|$)/g,"$1え");
+  let out="",i=0;
+  while(i<s.length){
+    if(s[i]==="っ"){
+      let j=i+1;while(s[j]===" ")j++;
+      const nxt=dig[s.slice(j,j+2)]||mon[s[j]]||"";
+      if(nxt&&/^[a-z]/.test(nxt)){out+=nxt.startsWith("ch")?"t":nxt[0];i++;continue}
+      i++;continue;
+    }
+    if(s[i]==="ー"){
+      const last=out[out.length-1];
+      const mac={a:"ā",i:"ī",u:"ū",e:"ē",o:"ō"};
+      if(mac[last])out=out.slice(0,-1)+mac[last];
+      i++;continue;
+    }
+    const d=dig[s.slice(i,i+2)];
+    if(d){out+=d;i+=2;continue}
+    const m=mon[s[i]];
+    if(m){out+=m;i++;continue}
+    out+=s[i++];
+  }
+  return out.replace(/\s+/g," ").replace(/\s+([,、。!?！？…」』])/g,"$1").replace(/([「『（(])\s+/g,"$1").trim();
 }
 async function roma(line){
   if(!line.trim())return"";
   if(romaCache.has(line))return romaCache.get(line);
-  const k=await getKuro(); const r=await k.convert(line,{to:"romaji",mode:"spaced",romajiSystem:"hepburn"});
+  const k=await getKuro();
+  const segs=splitJaOverrides(line);
+  let hira="";
+  for(const seg of segs){
+    if(seg.fixed)hira+=" "+seg.kana+" ";
+    else{
+      const h=await k.convert(seg.text,{to:"hiragana",mode:"spaced"});
+      hira+=" "+h+" ";
+    }
+  }
+  // Merge sokuon (っ) with following kana so でき なかっ た -> deki nakatta (not nakatsu ta)
+  hira=hira.replace(/っ\s+/g,"っ").replace(/\s+っ/g,"っ").replace(/\s+/g," ").trim();
+  const r=kanaToHepburn(hira);
   romaCache.set(line,r);return r;
 }
 
