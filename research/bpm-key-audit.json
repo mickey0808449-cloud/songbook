@@ -1017,8 +1017,8 @@
     "original_bpm": null,
     "output_bpm": 94,
     "reference_bpm": "94 / 188",
-    "reference_key": "",
-    "output_key": "",
+    "reference_key": "E",
+    "output_key": "E",
     "assessment": "雲端新增歌曲，自動排程查核補齊。",
     "sources": [
       "https://search.yahoo.co.jp/search?p=pain%20Vaundy%20BPM%20%E5%8E%9F%E6%9B%B2%E3%82%AD%E3%83%BC%20Key"
